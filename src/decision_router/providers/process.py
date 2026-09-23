@@ -6,7 +6,7 @@ import asyncio
 import multiprocessing
 import time
 from multiprocessing.connection import Connection
-from typing import Literal, cast
+from typing import Literal, Protocol, cast
 
 from decision_router.domain import (
     DecisionRequest,
@@ -17,6 +17,14 @@ from decision_router.domain import (
 )
 
 _MAX_MESSAGE = 1_048_576
+
+
+class _ConnectionLike(Protocol):
+    def send_bytes(self, buf: bytes) -> None: ...
+
+    def recv_bytes(self, maxlength: int | None = None) -> bytes: ...
+
+    def close(self) -> None: ...
 
 
 def _serve(
@@ -103,7 +111,7 @@ class ProcessNliProvider:
         self._startup_timeout_s = startup_timeout_s
         self._backend = _backend
         self._process: multiprocessing.Process | None = None
-        self._connection: Connection | None = None
+        self._connection: _ConnectionLike | None = None
         self._busy = False
 
     async def start(self) -> None:
@@ -125,8 +133,8 @@ class ProcessNliProvider:
             ),
             daemon=True,
         )
+        self._connection = parent
         # multiprocessing stubs expose platform-specific concrete subclasses.
-        self._connection = cast(Connection, parent)
         self._process = cast(multiprocessing.Process, process)
         try:
             process.start()
