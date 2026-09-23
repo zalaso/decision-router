@@ -1,5 +1,7 @@
 # Decision Router
 
+[Italiano](README.md) · [English](README.en.md)
+
 [![Tests](https://github.com/zalaso/decision-router/actions/workflows/test.yml/badge.svg)](https://github.com/zalaso/decision-router/actions/workflows/test.yml)
 
 Primo vertical slice Python >=3.12: decisioni tipizzate, provider intercambiabili,
