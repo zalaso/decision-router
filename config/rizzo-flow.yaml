@@ -1,0 +1,6 @@
+# Start Rizzo Flow separately on loopback before using this configuration.
+mode: local
+local_backend: rizzo_flow
+rizzo_base_url: http://127.0.0.1:8017
+rizzo_model: rizzo-latest
+timeout_s: 20

@@ -4,14 +4,13 @@ Ambiente: Windows 11, Python **3.14.4**, PyTorch **2.14.0+cpu**,
 Transformers **4.57.6**. CUDA non disponibile. Il progetto mantiene Python
 >=3.12 come requisito: il Python 3.12 scaricato è stato bloccato dalla policy
 Windows di controllo applicazioni (errore 4551), quindi non viene dichiarata
-un'esecuzione locale su 3.12. La matrice GitHub Actions 3.12/3.14 è stata
-eseguita con successo anche dopo l'integrazione OpenJev sul commit `18f675d`:
-[run](https://github.com/zalaso/decision-router/actions/runs/35833850867).
+un'esecuzione locale su 3.12. La matrice GitHub Actions 3.12/3.14 esegue
+test, analisi statica e build; l'esito corrente è nel badge Tests del README.
 Dipendenze risolte in `uv.lock`.
 
 ## Eseguito realmente
 
-- **83 test senza pesi passati**; i due test che richiedono il modello NLI vengono
+- **102 test senza pesi passati**; i due test che richiedono il modello NLI vengono
   saltati per default. Copertura di Choice/Boolean/Score, adapter cloud mockato,
   NLI con scorer iniettato, fake, candidati dinamici, quattro modalità,
   soglie ai confini, timeout, errori malformati, shadow, policy fail-closed,
@@ -22,13 +21,17 @@ Dipendenze risolte in `uv.lock`.
   Choice/Noul/Score con la libreria upstream e il suo mock, normalizzazione
   dell'arrotondamento, limiti input e rifiuto di risposte malformate o
   collisioni di primo token.
+- Test dell'adapter HTTP Rizzo Flow: contratto Choice/Noul/Score, separazione
+  delle chiavi locali/cloud, indirizzo vincolato a loopback, errori senza
+  redirect, fail-closed senza fake e rifiuto delle Choice oltre 26 candidati.
+  Il trasporto è mockato; non sono stati scaricati i pesi Spark.
 - **2 test aggiuntivi con mDeBERTa reale passati**, in modalità offline: tutte
   e tre le primitive, scelta del candidato coding su un input semplice e
   rifiuto di input oltre la finestra senza troncamento.
 - Test end-to-end HTTP in processo, lifecycle FastAPI e OpenAPI; CLI eseguita
   in subprocess e riprovata direttamente con risultato `coding_agent` e nessun
   permesso concesso. Non è stato lasciato un server in background.
-- `mypy` in modalità strict: **nessun problema nei 18 file sorgente**.
+- `mypy` in modalità strict: **nessun problema nei 20 file sorgente**.
 - `ruff check`, `ruff format --check`, compilazione sorgenti e `pip check`
   completati senza errori dopo le correzioni.
 - Pesi pubblici dei due modelli scaricati con revisioni fissate e realmente
@@ -58,6 +61,7 @@ Dipendenze risolte in `uv.lock`.
 Comandi riproducibili nell'ambiente già creato:
 
 ```powershell
+$env:PYTHONPATH = "$PWD\src"
 .venv314\Scripts\python -m pytest -q
 .venv314\Scripts\python -m mypy
 .venv314\Scripts\python -m ruff check src tests benchmarks scripts
@@ -129,6 +133,9 @@ utile per verificare la meccanica end-to-end, non per aggirare questi limiti.
 
 - Nessuna chiamata reale Jev Cloud: assenza di chiave configurata; contratto
   verificato contro documentazione ufficiale e trasporto mockato.
+- Nessuna inferenza live Rizzo Flow in questa verifica: contratto HTTP
+  controllato contro l'esempio upstream e con trasporto mockato. La qualità
+  e la latenza dei modelli Spark richiedono pesi e hardware dell'utente.
 - Nessuna certificazione di robustezza a prompt injection, accuratezza in
   produzione, calibrazione italiana o validità delle soglie di esempio.
 - Il NLI non esegue istruzioni generiche Choice/Score: servono descrizioni

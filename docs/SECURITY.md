@@ -22,6 +22,10 @@ devono rimanere efficaci anche se la classificazione è errata al 100%.
   involontaria nella configurazione. YAML con credenziali viene rifiutato.
 - Endpoint cloud fissato a `https://api.typesafe.ai/v1/systemone`, TLS verificato,
   redirect disattivati, proxy ambiente disabilitati per evitare inoltri inattesi.
+- Endpoint Rizzo Flow limitato a HTTP su IP numerico di loopback con porta
+  esplicita. Redirect e proxy ambiente sono disabilitati. L'eventuale
+  `RIZZO_API_KEY` viene letta soltanto dall'ambiente e non è la chiave TypeSafe.
+  La connessione HTTP locale non cifra i dati: non inoltrarla fuori macchina.
 - Modalità `auto` e `shadow` possono inviare prompt e contesto al cloud: scegliere
   `local` per dati che non possono uscire dal computer. Non esiste una redazione
   automatica dei contenuti prima dell'inferenza.
@@ -65,3 +69,8 @@ Il fake non va impiegato per classificare sicurezza in un sistema reale.
 Il wrapper OpenJev legge solo il primo token per etichetta; l'adapter rifiuta
 collisioni fra etichette, ma ciò non valida la qualità delle probabilità o la
 resistenza a prompt injection. Vedere `OPENJEV.md`.
+Rizzo Flow usa un modello e una statistica di confidence diversi da Jev:
+anche con formato HTTP compatibile, soglie e qualità richiedono una
+validazione specifica. L'endpoint compatibile non include l'astensione nativa
+di Rizzo Flow; la policy del router deve restare attiva. Vedere
+`RIZZO_FLOW.md`.

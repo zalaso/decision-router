@@ -14,6 +14,7 @@ from decision_router.providers.base import DecisionProvider
 from decision_router.providers.fake import FakeProvider
 from decision_router.providers.jev import JevCloudProvider
 from decision_router.providers.process import ProcessNliProvider
+from decision_router.providers.rizzo_flow import RizzoFlowProvider
 
 
 class _UnavailableLocal:
@@ -28,7 +29,7 @@ async def runtime(settings: Settings) -> AsyncIterator[DecisionEngine]:
     if settings.mode != "cloud":
         if settings.local_backend == "fake":
             local = FakeProvider()
-        else:
+        elif settings.local_backend != "rizzo_flow":
             try:
                 nli = ProcessNliProvider(
                     model=settings.local_model,
@@ -52,6 +53,14 @@ async def runtime(settings: Settings) -> AsyncIterator[DecisionEngine]:
                 local = _UnavailableLocal()
     try:
         async with httpx.AsyncClient(timeout=settings.timeout_s, trust_env=False) as client:
+            if settings.mode != "cloud" and settings.local_backend == "rizzo_flow":
+                local = RizzoFlowProvider(
+                    client,
+                    base_url=settings.rizzo_base_url,
+                    api_key=settings.rizzo_api_key,
+                    model=settings.rizzo_model,
+                    timeout_s=settings.timeout_s,
+                )
             cloud = (
                 JevCloudProvider(
                     client, settings.typesafe_api_key, settings.cloud_model, settings.timeout_s

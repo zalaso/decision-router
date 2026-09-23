@@ -1,4 +1,4 @@
-"""Official TypeSafe HTTP contract, isolated from the domain vocabulary."""
+"""System One HTTP contract shared by Jev Cloud and compatible local servers."""
 
 from time import perf_counter
 from typing import Annotated, Literal
@@ -47,22 +47,32 @@ class _Response(BaseModel):
     answers: dict[str, _WireAnswer]
 
 
-class JevCloudProvider:
+class _SystemOneHttpProvider:
     def __init__(
         self,
         client: httpx.AsyncClient,
         api_key: SecretStr,
-        model: str = "jev-latest",
-        timeout_s: float = 5.0,
+        model: str,
+        timeout_s: float,
+        *,
+        endpoint: str,
+        provider_name: str,
+        require_api_key: bool,
+        provider_warnings: list[str] | None = None,
     ) -> None:
         self._client = client
         self._api_key = api_key
         self._model = model
         self._timeout_s = timeout_s
+        self._endpoint = endpoint
+        self._provider_name = provider_name
+        self._require_api_key = require_api_key
+        self._provider_warnings = provider_warnings or []
 
     async def decide(self, request: DecisionRequest) -> ProviderResult:
         start = perf_counter()
-        if not self._api_key.get_secret_value():
+        key = self._api_key.get_secret_value()
+        if self._require_api_key and not key:
             raise ProviderError(ErrorCode.AUTHENTICATION)
         questions: dict[str, object] = {}
         for q in request.questions:
@@ -79,8 +89,8 @@ class JevCloudProvider:
             }
         try:
             response = await self._client.post(
-                "https://api.typesafe.ai/v1/systemone",
-                headers={"Authorization": f"Bearer {self._api_key.get_secret_value()}"},
+                self._endpoint,
+                headers={"Authorization": f"Bearer {key}"} if key else {},
                 json={
                     "model": self._model,
                     "state": {
@@ -141,14 +151,36 @@ class JevCloudProvider:
             return validate_result(
                 request,
                 ProviderResult(
-                    provider="jev_cloud",
+                    provider=self._provider_name,
                     model=wire.model,
                     answers=answers,
                     latency_ms=(perf_counter() - start) * 1000,
-                    warnings=["boolean_confidence_derived_from_max_probability"]
-                    if any(isinstance(q, Boolean) for q in request.questions)
-                    else [],
+                    warnings=self._provider_warnings
+                    + (
+                        ["boolean_confidence_derived_from_max_probability"]
+                        if any(isinstance(q, Boolean) for q in request.questions)
+                        else []
+                    ),
                 ),
             )
         except (ValidationError, ValueError, KeyError, TypeError):
             raise ProviderError(ErrorCode.INVALID_RESPONSE) from None
+
+
+class JevCloudProvider(_SystemOneHttpProvider):
+    def __init__(
+        self,
+        client: httpx.AsyncClient,
+        api_key: SecretStr,
+        model: str = "jev-latest",
+        timeout_s: float = 5.0,
+    ) -> None:
+        super().__init__(
+            client,
+            api_key,
+            model,
+            timeout_s,
+            endpoint="https://api.typesafe.ai/v1/systemone",
+            provider_name="jev_cloud",
+            require_api_key=True,
+        )

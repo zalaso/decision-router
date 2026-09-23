@@ -95,6 +95,27 @@ only the first token of each candidate label; this adapter supports up to
 a calibrated probability of correctness. See [OPENJEV](docs/OPENJEV.md)
 (currently in Italian) for the full constraints and implementation details.
 
+### Optional local Rizzo Flow
+
+[Rizzo Flow](https://github.com/Rizzo-AI-Academy/rizzo-flow) runs a local
+service with the Jev-compatible `/v1/systemone` HTTP format. Select it as
+the `rizzo_flow` backend with `config/rizzo-flow.yaml`. The router does not
+install its weights or send your TypeSafe key to it. Start Rizzo Flow in a
+separate terminal using its quickstart (`uv sync --locked`,
+`uv run rizzo download`, `uv run rizzo serve`). Then, from the Decision
+Router directory:
+
+```powershell
+.venv\Scripts\decision-router --config config/rizzo-flow.yaml route "Write Python code"
+```
+
+For a different port, set `ROUTER_RIZZO_BASE_URL` to a numeric HTTP
+loopback origin, such as `http://127.0.0.1:8018`. If your Rizzo server
+requires Bearer authentication, export `RIZZO_API_KEY` in the router's shell
+too. An unreachable server or invalid response leads to human review in
+`local` mode; distributions are not calibrated for routing. See
+[RIZZO_FLOW](docs/RIZZO_FLOW.md) for details (currently in Italian).
+
 ## Cloud, auto, and shadow
 
 Set `TYPESAFE_API_KEY` in your shell to use the official TypeSafe APIs.

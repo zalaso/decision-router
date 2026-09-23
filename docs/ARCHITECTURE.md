@@ -2,7 +2,7 @@
 
 L'interfaccia pubblica per decidere è `await DecisionEngine.decide(DecisionRequest)`.
 `DecisionProvider` ha lo stesso metodo e permette di sostituire Jev Cloud,
-NLI locale, GPT-AGI/OpenJev locale e fake.
+NLI locale, GPT-AGI/OpenJev locale, Rizzo Flow locale e fake.
 Il composition root `runtime.py` costruisce le dipendenze; gli adapter e
 l'orchestratore le ricevono. Il dominio non importa SDK TypeSafe né Transformers.
 
@@ -11,6 +11,7 @@ flowchart LR
     Client[CLI / HTTP / Python] --> Engine[DecisionEngine.decide]
     Engine --> Fake[Fake deterministico]
     Engine --> Local[NLI / OpenJev locale]
+    Engine --> Rizzo[Rizzo Flow HTTP locale]
     Engine --> Cloud[Adapter HTTP Jev]
     Engine --> Audit[Log strutturato sanitizzato]
     Engine --> Policy[Policy deterministica del router]
@@ -59,7 +60,7 @@ confronta il livello più probabile, non l'uguaglianza dei valori attesi.
 Timeout per tentativo esplicito: `auto` può impiegare due timeout, `shadow`
 circa uno più overhead. Nessun retry automatico moltiplica i costi. Cold start
 del modello precede le richieste e viene misurato separatamente.
-I backend locali reali usano un processo separato con un solo task alla volta e IPC
+NLI e OpenJev locali usano un processo figlio con un solo task alla volta e IPC
 limitato. Su timeout o cancellazione il padre termina il processo, anche se
 Torch è bloccato nel kernel; il provider poi resta indisponibile e non accoda
 richieste. Lo scorer diretto usato nei test di contratto mantiene un thread,
@@ -67,6 +68,8 @@ ma non è il composition root di CLI e API. Startup e inferenza hanno timeout
 distinti. Il processo non fornisce isolamento di sicurezza da codice ostile.
 OpenJev è un'integrazione opzionale della libreria upstream, con installazione
 e peso separati: vedere `OPENJEV.md`.
+Rizzo Flow è un servizio HTTP locale separato, con contratto compatibile Jev:
+vedere `RIZZO_FLOW.md`. Il timeout del router non termina il processo Rizzo.
 
 ## Scelte di ambito
 

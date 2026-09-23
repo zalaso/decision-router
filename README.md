@@ -77,6 +77,26 @@ Installazione alla revisione fissata, download dei pesi e limiti del confronto
 dei primi token sono spiegati in [OPENJEV](docs/OPENJEV.md). L'installazione
 base funziona senza questa dipendenza opzionale.
 
+### Rizzo Flow locale opzionale
+
+[Rizzo Flow](https://github.com/Rizzo-AI-Academy/rizzo-flow) espone un servizio
+locale con il formato HTTP Jev `/v1/systemone`. Il router lo usa come backend
+`rizzo_flow` tramite `config/rizzo-flow.yaml`, senza installare i suoi pesi o
+inviare la chiave TypeSafe. Avviare Rizzo Flow in un terminale separato,
+seguendo il suo quickstart (`uv sync --locked`, `uv run rizzo download`,
+`uv run rizzo serve`). Poi, dalla cartella Decision Router:
+
+```powershell
+.venv\Scripts\decision-router --config config/rizzo-flow.yaml route "Write Python code"
+```
+
+Per una porta diversa impostare `ROUTER_RIZZO_BASE_URL` a un origin HTTP
+numerico di loopback, per esempio `http://127.0.0.1:8018`. Se il server Rizzo
+richiede Bearer auth, esportare `RIZZO_API_KEY` anche nella shell del router.
+Un server non raggiungibile o una risposta non valida portano a revisione
+umana in modalità `local`; le distribuzioni non sono calibrate per il routing.
+Dettagli e limiti in [RIZZO_FLOW](docs/RIZZO_FLOW.md).
+
 ## Cloud, auto e shadow
 
 Esportare `TYPESAFE_API_KEY` nella shell per le API ufficiali TypeSafe.
