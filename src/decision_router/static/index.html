@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Decision Router</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%233b5bdb'/%3E%3Cpath d='M7 16h7l5-7h6M14 16l5 7h6' stroke='white' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8"/><path d="M7 16h7l5-7h6M14 16l5 7h6"/></svg>
+      <span class="brand-name">Decision Router</span>
+      <span class="brand-version" id="version"></span>
+    </div>
+    <div class="topbar-right">
+      <span class="status-chip" id="status-chip" data-state="loading"><span class="dot"></span><span id="status-text" data-i18n="status.loading"></span></span>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="it">IT</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button type="button" role="tab" data-tab="route" data-i18n="tab.route"></button>
+    <button type="button" role="tab" data-tab="decide" data-i18n="tab.decide"></button>
+    <button type="button" role="tab" data-tab="how" data-i18n="tab.how"></button>
+    <button type="button" role="tab" data-tab="config" data-i18n="tab.config"></button>
+  </nav>
+
+  <div class="notice" id="demo-notice" hidden>
+    <strong data-i18n="demo.title"></strong> <span data-i18n="demo.body"></span>
+    <button type="button" class="link" data-goto="config" data-i18n="demo.link"></button>
+  </div>
+
+  <div class="notice notice-auth" id="auth-panel" hidden>
+    <form id="auth-form" class="auth-form">
+      <label for="token-input"><strong data-i18n="auth.title"></strong> <span data-i18n="auth.body"></span></label>
+      <div class="auth-row">
+        <input id="token-input" type="password" autocomplete="off" spellcheck="false">
+        <button type="submit" class="btn" data-i18n="auth.save"></button>
+      </div>
+    </form>
+  </div>
+
+  <main>
+    <!-- ROUTE -->
+    <section class="panel-grid" data-panel="route" role="tabpanel">
+      <div class="col-input">
+        <form id="route-form" class="card" novalidate>
+          <label class="field-label" for="route-prompt" data-i18n="route.prompt"></label>
+          <textarea id="route-prompt" rows="5" maxlength="32000" data-i18n-placeholder="route.placeholder"></textarea>
+          <div class="examples">
+            <span class="examples-label" data-i18n="route.examples"></span>
+            <div class="chips" id="route-examples"></div>
+          </div>
+
+          <details class="disclosure">
+            <summary data-i18n="route.context"></summary>
+            <p class="hint" data-i18n="route.contextHint"></p>
+            <textarea id="route-context" rows="3" maxlength="16000"></textarea>
+          </details>
+
+          <details class="disclosure" id="agents-disclosure">
+            <summary><span data-i18n="route.agents"></span> <span class="count" id="agents-count"></span></summary>
+            <p class="hint" data-i18n="route.agentsHint"></p>
+            <div id="agents-list" class="rows"></div>
+            <div class="row-actions">
+              <button type="button" class="btn btn-quiet" id="agent-add" data-i18n="route.addAgent"></button>
+              <button type="button" class="btn btn-quiet" id="agent-reset" data-i18n="route.resetAgents"></button>
+            </div>
+          </details>
+
+          <p class="form-error" id="route-error" role="alert" hidden></p>
+          <div class="submit-row">
+            <button type="submit" class="btn btn-primary" id="route-submit" data-i18n="route.submit"></button>
+            <span class="kbd-hint">Ctrl + Enter</span>
+          </div>
+        </form>
+
+        <div class="card history" id="history-card" hidden>
+          <div class="card-head">
+            <h2 data-i18n="history.title"></h2>
+            <button type="button" class="btn btn-quiet btn-small" id="history-clear" data-i18n="history.clear"></button>
+          </div>
+          <p class="hint" data-i18n="history.hint"></p>
+          <ol id="history-list" class="history-list"></ol>
+        </div>
+      </div>
+
+      <div class="col-output" id="route-output" aria-live="polite">
+        <div class="card empty">
+          <h2 data-i18n="empty.title"></h2>
+          <ol class="empty-steps">
+            <li data-i18n="empty.step1"></li>
+            <li data-i18n="empty.step2"></li>
+            <li data-i18n="empty.step3"></li>
+          </ol>
+          <p class="hint" data-i18n="empty.note"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CUSTOM DECISION -->
+    <section class="panel-grid" data-panel="decide" role="tabpanel" hidden>
+      <div class="col-input">
+        <form id="decide-form" class="card" novalidate>
+          <p class="hint lead" data-i18n="decide.intro"></p>
+          <label class="field-label" for="decide-prompt" data-i18n="decide.prompt"></label>
+          <textarea id="decide-prompt" rows="4" maxlength="32000"></textarea>
+          <details class="disclosure">
+            <summary data-i18n="route.context"></summary>
+            <textarea id="decide-context" rows="3" maxlength="16000"></textarea>
+          </details>
+
+          <div class="questions-head">
+            <h2 data-i18n="decide.questions"></h2>
+            <button type="button" class="btn btn-quiet btn-small" id="decide-example" data-i18n="decide.loadExample"></button>
+          </div>
+          <div id="questions" class="questions"></div>
+          <div class="row-actions">
+            <button type="button" class="btn btn-quiet" data-add-question="choice" data-i18n="decide.addChoice"></button>
+            <button type="button" class="btn btn-quiet" data-add-question="boolean" data-i18n="decide.addBoolean"></button>
+            <button type="button" class="btn btn-quiet" data-add-question="score" data-i18n="decide.addScore"></button>
+          </div>
+
+          <p class="form-error" id="decide-error" role="alert" hidden></p>
+          <div class="submit-row">
+            <button type="submit" class="btn btn-primary" id="decide-submit" data-i18n="decide.submit"></button>
+            <span class="kbd-hint">Ctrl + Enter</span>
+          </div>
+        </form>
+      </div>
+      <div class="col-output" id="decide-output" aria-live="polite">
+        <div class="card empty">
+          <h2 data-i18n="decide.emptyTitle"></h2>
+          <p data-i18n="decide.emptyBody"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="prose" data-panel="how" role="tabpanel" hidden>
+      <div class="card">
+        <h2 data-i18n="how.title"></h2>
+        <p class="lead" data-i18n="how.lead"></p>
+        <ol class="pipeline">
+          <li><span class="step-n">1</span><h3 data-i18n="how.s1t"></h3><p data-i18n="how.s1"></p></li>
+          <li><span class="step-n">2</span><h3 data-i18n="how.s2t"></h3><p data-i18n="how.s2"></p></li>
+          <li><span class="step-n">3</span><h3 data-i18n="how.s3t"></h3><p data-i18n="how.s3"></p></li>
+          <li><span class="step-n">4</span><h3 data-i18n="how.s4t"></h3><p data-i18n="how.s4"></p></li>
+        </ol>
+        <p class="callout" data-i18n="how.never"></p>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="how.qTitle"></h2>
+        <dl class="defs">
+          <dt data-i18n="kind.choice"></dt><dd data-i18n="how.qChoice"></dd>
+          <dt data-i18n="kind.boolean"></dt><dd data-i18n="how.qBoolean"></dd>
+          <dt data-i18n="kind.score"></dt><dd data-i18n="how.qScore"></dd>
+        </dl>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="how.modesTitle"></h2>
+        <dl class="defs">
+          <dt>local</dt><dd data-i18n="how.mLocal"></dd>
+          <dt>cloud</dt><dd data-i18n="how.mCloud"></dd>
+          <dt>auto</dt><dd data-i18n="how.mAuto"></dd>
+          <dt>shadow</dt><dd data-i18n="how.mShadow"></dd>
+        </dl>
+        <h2 data-i18n="how.backendsTitle"></h2>
+        <dl class="defs">
+          <dt>fake</dt><dd data-i18n="how.bFake"></dd>
+          <dt>nli</dt><dd data-i18n="how.bNli"></dd>
+          <dt>openjev</dt><dd data-i18n="how.bOpenjev"></dd>
+          <dt>rizzo_flow</dt><dd data-i18n="how.bRizzo"></dd>
+        </dl>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="how.apiTitle"></h2>
+        <p data-i18n="how.apiBody"></p>
+        <p><a href="/docs" target="_blank" rel="noopener" data-i18n="how.apiLink"></a></p>
+      </div>
+    </section>
+
+    <!-- CONFIG -->
+    <section class="prose" data-panel="config" role="tabpanel" hidden>
+      <div class="card">
+        <h2 data-i18n="config.title"></h2>
+        <p class="lead" data-i18n="config.lead"></p>
+        <div class="table-wrap">
+          <table class="config-table">
+            <thead><tr><th data-i18n="config.setting"></th><th data-i18n="config.value"></th><th data-i18n="config.env"></th></tr></thead>
+            <tbody id="config-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h2 data-i18n="config.changeTitle"></h2>
+        <p data-i18n="config.changeBody"></p>
+        <pre class="code" id="config-example"></pre>
+        <p class="hint" data-i18n="config.readonly"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span data-i18n="footer.note"></span>
+    <a href="https://github.com/zalaso/decision-router" target="_blank" rel="noopener">GitHub</a>
+    <a href="/docs" target="_blank" rel="noopener">API</a>
+  </footer>
+</body>
+</html>

@@ -11,6 +11,8 @@ from decision_router.domain import (
 from decision_router.engine import DecisionEngine
 from decision_router.providers.base import DecisionProvider
 
+__version__ = "0.1.0"
+
 __all__ = [
     "Boolean",
     "Candidate",

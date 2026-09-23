@@ -74,8 +74,12 @@ vedere `RIZZO_FLOW.md`. Il timeout del router non termina il processo Rizzo.
 ## Scelte di ambito
 
 Python >=3.12, FastAPI, Pydantic v2, httpx, PyYAML, pytest. Torch/Transformers
-sono optional e isolati. Nessun database, UI, esecuzione downstream o rete
-distribuita. MIT per il codice originale. OmniRoute risolve il gateway per
+sono optional e isolati. Nessun database, esecuzione downstream o rete
+distribuita. La dashboard web (`dashboard.py` e `static/`) è un client dello
+stesso contratto HTTP: HTML, CSS e JavaScript statici, senza build né CDN,
+serviti dall'app FastAPI su `/dashboard/`. Legge `GET /v1/status` (fatti non
+segreti) e chiama `/v1/route` e `/v1/decisions` come qualunque altro client;
+non ha stato lato server e non modifica la configurazione. MIT per il codice originale. OmniRoute risolve il gateway per
 modelli downstream, ma non sostituisce la distribuzione decisionale tipizzata
 né la policy di questo slice: non viene aggiunto senza necessità.
 

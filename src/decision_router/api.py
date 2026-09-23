@@ -14,7 +14,9 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
+from decision_router import __version__
 from decision_router.config import Settings, load_settings
+from decision_router.dashboard import Status, mount_dashboard
 from decision_router.domain import DecisionRequest, DecisionResult
 from decision_router.engine import DecisionEngine
 from decision_router.policy import DeterministicPolicy
@@ -106,7 +108,7 @@ class RequestGuard:
 
 
 def create_app(engine: DecisionEngine, settings: Settings) -> FastAPI:
-    app = FastAPI(title="Decision Router", version="0.1.0")
+    app = FastAPI(title="Decision Router", version=__version__)
     app.add_middleware(BodyLimit)
     app.add_middleware(
         RequestGuard,
@@ -132,6 +134,10 @@ def create_app(engine: DecisionEngine, settings: Settings) -> FastAPI:
     async def health() -> dict[str, str]:
         return {"status": "ok"}
 
+    @app.get("/v1/status", response_model=Status, dependencies=[Depends(authenticate)])
+    async def status() -> Status:
+        return Status.from_settings(settings)
+
     @app.post("/v1/decisions", response_model=DecisionResult, dependencies=[Depends(authenticate)])
     async def decisions(request: DecisionRequest) -> DecisionResult:
         return await engine.decide(request)
@@ -140,6 +146,8 @@ def create_app(engine: DecisionEngine, settings: Settings) -> FastAPI:
     async def routing(request: RouteRequest) -> RouteResult:
         return await route(request, engine, policy)
 
+    if settings.dashboard:
+        mount_dashboard(app)
     return app
 
 

@@ -63,6 +63,7 @@ class Settings(Model):
     max_requests_per_minute: int = Field(default=60, ge=1, le=100000)
     max_concurrent_requests: int = Field(default=4, ge=1, le=1000)
     require_https: bool = False
+    dashboard: bool = True
     temperature: Temperature = 1.0
     temperature_by_question: dict[str, Temperature] = Field(default_factory=dict)
     typesafe_api_key: SecretStr = SecretStr("")

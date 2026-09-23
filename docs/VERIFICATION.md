@@ -72,6 +72,23 @@ $env:RUN_LOCAL_MODEL_TESTS = "1"
 .venv314\Scripts\python benchmarks/run.py --config config/local.yaml --compare-config config/local-small.yaml --output benchmarks/results-local.json
 ```
 
+## Dashboard web (23 settembre 2026)
+
+- 113 test passati, 2 saltati (modello reale), con Python 3.14 locale; `mypy`
+  strict senza problemi su 21 file sorgente, `ruff check` e `ruff format --check`
+  puliti. I test nuovi coprono file statici e header CSP, disattivazione con
+  `ROUTER_DASHBOARD=false`, `/v1/status` senza valori segreti e con token,
+  rifiuto di `serve` fuori loopback senza token, avvio della factory uvicorn.
+- Wheel costruita con uv e installata in un ambiente Python 3.12 pulito: i tre
+  file statici sono inclusi e la dashboard risponde da `app_factory`.
+- `start.bat` eseguito in una copia pulita del progetto: ha creato `.venv`,
+  installato le dipendenze e servito `/dashboard/` (HTTP 200). `start.sh`
+  controllato solo sintatticamente (`sh -n`): non eseguito su Linux/macOS.
+- Dashboard provata nel browser con il backend fake: instradamento, esempio di
+  prompt injection (revisione umana con motivi), decisione personalizzata,
+  configurazione, cambio lingua, viewport mobile 375 px senza scroll
+  orizzontale, nessun errore in console. Non provata con modelli reali o cloud.
+
 ## Benchmark e interpretazione
 
 I report completi sono `benchmarks/results-fake.json`,

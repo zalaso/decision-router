@@ -51,6 +51,16 @@ HTTP POST `/v1/` e richiede un token configurato, ma non termina TLS: usarlo
 solo dietro un
 reverse proxy fidato che imposti correttamente lo schema ASGI.
 
+La dashboard su `/dashboard/` usa le stesse regole degli endpoint: con
+`ROUTER_API_TOKEN` impostato, anche `GET /v1/status` richiede il token, che il
+browser conserva solo in `sessionStorage` della scheda. Le risposte statiche
+hanno una CSP restrittiva (`default-src 'none'`, script e stili solo same-origin,
+nessun inline, `frame-ancestors 'none'`), `nosniff` e `no-referrer`; testi di
+richieste e risposte vengono inseriti nel DOM solo come testo. `/v1/status`
+riporta la presenza delle credenziali, mai i valori. La configurazione non si
+modifica dal browser. `ROUTER_DASHBOARD=false` rimuove l'interfaccia.
+`decision-router serve` rifiuta indirizzi non di loopback senza token.
+
 Mancano quote per identità e coordinate fra più processi, terminazione TLS,
 gestione identità, cifratura dei log e policy di retention. Prima di esporre il
 servizio fuori loopback servono questi controlli nell'infrastruttura fidata,
