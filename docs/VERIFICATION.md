@@ -4,8 +4,9 @@ Ambiente: Windows 11, Python **3.14.4**, PyTorch **2.14.0+cpu**,
 Transformers **4.57.6**. CUDA non disponibile. Il progetto mantiene Python
 >=3.12 come requisito: il Python 3.12 scaricato è stato bloccato dalla policy
 Windows di controllo applicazioni (errore 4551), quindi non viene dichiarata
-un'esecuzione locale su 3.12. La matrice CI 3.12/3.14 è predisposta, non eseguita
-su GitHub in questo ciclo. Dipendenze risolte in `uv.lock`.
+un'esecuzione locale su 3.12. La matrice GitHub Actions 3.12/3.14 è stata
+eseguita con successo sul commit `9837073`: [run](https://github.com/zalaso/decision-router/actions/runs/35830339061).
+Dipendenze risolte in `uv.lock`.
 
 ## Eseguito realmente
 
@@ -35,6 +36,9 @@ su GitHub in questo ciclo. Dipendenze risolte in `uv.lock`.
   `production_ready: false`; il valore stimato non è stato applicato.
 - `scripts/check_shadow.py` eseguito senza `TYPESAFE_API_KEY`: ha restituito
   `not_run` senza inviare richieste al cloud.
+- Wheel e sdist `0.1.0` costruiti in locale. In CI, su Python 3.12 e 3.14,
+  passano test, mypy, Ruff, build, installazione della wheel e smoke test del
+  comando `decision-router` installato.
 
 Comandi riproducibili nell'ambiente già creato:
 
@@ -135,7 +139,6 @@ utile per verificare la meccanica end-to-end, non per aggirare questi limiti.
    residuo della policy completa prima di applicare temperature o soglie.
 2. Con una chiave TypeSafe configurata, eseguire il controllo live e il shadow
    locale/Jev, misurando qualità, costi e latenza senza cambiare la policy.
-3. Collegare la cartella a una repository e far eseguire la matrice CI Python
-   3.12/3.14. La copia Python 3.12 scaricata qui è bloccata da Windows.
-   Completare proxy TLS, identità/quote condivise e test di carico prima
-   dell'esposizione esterna.
+3. Completare proxy TLS, identità/quote condivise e test di carico prima
+   dell'esposizione esterna. La copia Python 3.12 scaricata su questa macchina
+   rimane bloccata da Windows; la verifica 3.12 ora è coperta dalla CI.

@@ -1,5 +1,7 @@
 # Decision Router
 
+[![Tests](https://github.com/zalaso/decision-router/actions/workflows/test.yml/badge.svg)](https://github.com/zalaso/decision-router/actions/workflows/test.yml)
+
 Primo vertical slice Python >=3.12: decisioni tipizzate, provider intercambiabili,
 router dimostrativo e policy deterministiche. Nessun agente downstream viene eseguito.
 
