@@ -8,9 +8,11 @@ import webbrowser
 from ipaddress import ip_address
 from pathlib import Path
 
+from decision_router.catalog import CatalogService
 from decision_router.config import load_settings
 from decision_router.domain import DecisionRequest
 from decision_router.policy import DeterministicPolicy
+from decision_router.recommend import RecommendRequest, recommend
 from decision_router.routing import RouteRequest, route
 from decision_router.runtime import runtime
 
@@ -26,6 +28,21 @@ async def _run(args: argparse.Namespace) -> int:
             )
             print(result.model_dump_json(indent=2))
             return 2 if result.policy.review_required else 0
+        if args.command == "recommend":
+            advice = await recommend(
+                RecommendRequest(
+                    prompt=args.prompt,
+                    context=args.context,
+                    available=args.models.split(",") if args.models else None,
+                    priority=args.priority,
+                    local_only=args.local_only,
+                ),
+                engine,
+                DeterministicPolicy(settings),
+                CatalogService(settings),
+            )
+            print(advice.model_dump_json(indent=2))
+            return 0 if advice.recommended else 2
         request = DecisionRequest.model_validate_json(args.file.read_text(encoding="utf-8"))
         evaluation = await engine.decide(request)
         print(evaluation.model_dump_json(indent=2))
@@ -82,6 +99,16 @@ def main() -> None:
     routing = commands.add_parser("route", parents=[common], help="suggest an agent for a prompt")
     routing.add_argument("prompt")
     routing.add_argument("--context", default="")
+    advice = commands.add_parser(
+        "recommend", parents=[common], help="suggest which AI model to use for a prompt"
+    )
+    advice.add_argument("prompt")
+    advice.add_argument("--context", default="")
+    advice.add_argument("--models", help="comma-separated catalog IDs you can use")
+    advice.add_argument(
+        "--priority", choices=["balanced", "economy", "speed", "quality"], default="balanced"
+    )
+    advice.add_argument("--local-only", action="store_true")
     decision = commands.add_parser(
         "decide", parents=[common], help="evaluate a DecisionRequest JSON file"
     )

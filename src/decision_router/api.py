@@ -15,11 +15,13 @@ from fastapi.responses import JSONResponse
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from decision_router import __version__
+from decision_router.catalog import CatalogService, CatalogView
 from decision_router.config import Settings, load_settings
 from decision_router.dashboard import Status, mount_dashboard
 from decision_router.domain import DecisionRequest, DecisionResult
 from decision_router.engine import DecisionEngine
 from decision_router.policy import DeterministicPolicy
+from decision_router.recommend import RecommendRequest, RecommendResult, recommend
 from decision_router.routing import RouteRequest, RouteResult, route
 from decision_router.runtime import runtime
 
@@ -107,7 +109,9 @@ class RequestGuard:
                 self._active -= 1
 
 
-def create_app(engine: DecisionEngine, settings: Settings) -> FastAPI:
+def create_app(
+    engine: DecisionEngine, settings: Settings, catalog: CatalogService | None = None
+) -> FastAPI:
     app = FastAPI(title="Decision Router", version=__version__)
     app.add_middleware(BodyLimit)
     app.add_middleware(
@@ -117,6 +121,7 @@ def create_app(engine: DecisionEngine, settings: Settings) -> FastAPI:
         require_https=settings.require_https,
     )
     policy = DeterministicPolicy(settings)
+    models = catalog or CatalogService(settings)
 
     async def authenticate(authorization: str | None = Header(default=None)) -> None:
         token = settings.api_token.get_secret_value()
@@ -145,6 +150,18 @@ def create_app(engine: DecisionEngine, settings: Settings) -> FastAPI:
     @app.post("/v1/route", response_model=RouteResult, dependencies=[Depends(authenticate)])
     async def routing(request: RouteRequest) -> RouteResult:
         return await route(request, engine, policy)
+
+    @app.get("/v1/models", response_model=CatalogView, dependencies=[Depends(authenticate)])
+    async def model_catalog(rescan: bool = False) -> CatalogView:
+        return await models.view(rescan=rescan)
+
+    @app.post(
+        "/v1/models/recommend",
+        response_model=RecommendResult,
+        dependencies=[Depends(authenticate)],
+    )
+    async def recommend_model(request: RecommendRequest) -> RecommendResult:
+        return await recommend(request, engine, policy, models)
 
     if settings.dashboard:
         mount_dashboard(app)

@@ -12,11 +12,21 @@ from decision_router.domain import (
     candidate_ids,
 )
 
+_STOPWORDS = frozenset(
+    "a an and are as at be by for from in is it of on or the this to with you your".split()
+)
+
+
+def _stems(text: str) -> set[str]:
+    # Crude 5-letter prefixes so "describe" meets "describing"; still only keyword matching.
+    return {w[:5] for w in re.findall(r"\w+", text.lower()) if w not in _STOPWORDS}
+
 
 class FakeProvider:
     async def decide(self, request: DecisionRequest) -> ProviderResult:
         start = perf_counter()
         words = set(re.findall(r"\w+", (request.prompt + " " + request.context).lower()))
+        stems = _stems(request.prompt + " " + request.context)
         answers: dict[str, Answer] = {}
         for question in request.questions:
             ids = candidate_ids(question)
@@ -24,7 +34,7 @@ class FakeProvider:
             if isinstance(question, Choice):
                 winner = max(
                     question.candidates,
-                    key=lambda c: len(words & set(re.findall(r"\w+", c.description.lower()))),
+                    key=lambda c: len(stems & _stems(c.description)),
                 ).id
             elif isinstance(question, Boolean):
                 winner = "true" if words & {"steal", "injection", "malware"} else "false"

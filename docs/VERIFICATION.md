@@ -89,6 +89,25 @@ $env:RUN_LOCAL_MODEL_TESTS = "1"
   configurazione, cambio lingua, viewport mobile 375 px senza scroll
   orizzontale, nessun errore in console. Non provata con modelli reali o cloud.
 
+## Raccomandazione del modello (23 settembre 2026)
+
+- 128 test passati, 2 saltati; `mypy` strict e Ruff puliti. I test coprono
+  le cinque strategie di `rank()` con un catalogo sintetico, i casi "nessuno
+  basta", compito non supportato e compito ambiguo, la validazione del catalogo
+  incluso e di uno errato, il rilevamento Ollama con trasporto simulato
+  (installato, non installato, sconosciuto, non raggiungibile, disattivato),
+  la disponibilità predefinita, `local_only`, il blocco su richiesta malevola,
+  l'escalation per incertezza con un provider scriptato e i due endpoint HTTP.
+- Provato in dashboard con il backend fake e con **Ollama reale** in locale
+  (0.34.2, `qwen2.5:3b-instruct` e `qwen2.5:7b-instruct` rilevati): priorità
+  qualità, risparmio e velocità, "solo locali", richiesta sulle immagini senza
+  modelli locali adatti e richiesta malevola bloccata.
+- Dati del catalogo verificati il 23 settembre 2026 sulle pagine ufficiali di
+  prezzi OpenAI e Google, sulla libreria Ollama e sulla documentazione
+  Anthropic. I punteggi per compito sono stime, non misure.
+- Non verificato: qualità della classificazione di compito e complessità con
+  i modelli NLI, OpenJev o cloud; il backend fake stima sempre complessità bassa.
+
 ## Benchmark e interpretazione
 
 I report completi sono `benchmarks/results-fake.json`,

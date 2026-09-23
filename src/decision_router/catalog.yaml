@@ -1,0 +1,193 @@
+# Model catalog for /v1/models/recommend. Copy it, edit it and point
+# ROUTER_MODEL_CATALOG at your copy to replace this one.
+#
+# Facts (checked 2026-09-23): API ids, USD prices per 1M tokens (input/output),
+# context windows and local download sizes come from the official pages:
+#   Anthropic  https://docs.anthropic.com (models and pricing)
+#   OpenAI     https://developers.openai.com/api/docs/pricing
+#   Google     https://ai.google.dev/gemini-api/docs/pricing
+#   Ollama     https://ollama.com/library
+# Skills (0-10 per task, 0 = not supported), cost (0-5) and speed (1-5) are
+# ESTIMATES meant for relative ranking, not benchmark results. Local speed
+# depends on your hardware. Edit them to match your experience.
+updated: "2026-09-23"
+
+groups:
+  - id: claude
+    label: Claude
+    provider: Anthropic
+  - id: chatgpt
+    label: ChatGPT / OpenAI
+    provider: OpenAI
+  - id: gemini
+    label: Gemini
+    provider: Google
+  - id: local
+    label: Local (Ollama)
+    provider: Ollama
+
+models:
+  # ---------------------------------------------------------------- Claude
+  - id: claude-fable-5-1
+    name: Claude Fable 5.1
+    group: claude
+    api_model: claude-fable-5-1
+    price: [10.0, 50.0]
+    context_k: 1000
+    cost: 5
+    speed: 1
+    skills: {code: 10, reasoning: 10, writing: 9, research: 10, chat: 8, vision: 9}
+    notes: Anthropic's most capable widely released model; long turns on hard tasks.
+  - id: claude-opus-5-5
+    name: Claude Opus 5.5
+    group: claude
+    api_model: claude-opus-5-5
+    price: [4.0, 20.0]
+    context_k: 1000
+    cost: 3
+    speed: 2
+    skills: {code: 9, reasoning: 9, writing: 9, research: 9, chat: 8, vision: 8}
+  - id: claude-opus-5
+    name: Claude Opus 5
+    group: claude
+    api_model: claude-opus-5
+    price: [5.0, 25.0]
+    context_k: 1000
+    cost: 4
+    speed: 2
+    skills: {code: 8, reasoning: 8, writing: 8, research: 8, chat: 8, vision: 8}
+  - id: claude-sonnet-5
+    name: Claude Sonnet 5
+    group: claude
+    api_model: claude-sonnet-5
+    price: [2.0, 10.0]
+    context_k: 1000
+    cost: 2
+    speed: 3
+    skills: {code: 8, reasoning: 7, writing: 8, research: 7, chat: 8, vision: 7}
+  - id: claude-haiku-4-5
+    name: Claude Haiku 4.5
+    group: claude
+    api_model: claude-haiku-4-5
+    price: [1.0, 5.0]
+    context_k: 200
+    cost: 1
+    speed: 5
+    skills: {code: 5, reasoning: 4, writing: 6, research: 4, chat: 7, vision: 5}
+
+  # ---------------------------------------------------------------- OpenAI
+  - id: gpt-6-astra
+    name: GPT-6 Astra
+    group: chatgpt
+    api_model: gpt-6-astra
+    price: [10.0, 50.0]
+    cost: 5
+    speed: 1
+    skills: {code: 10, reasoning: 10, writing: 9, research: 9, chat: 8, vision: 9}
+  - id: gpt-6-sol
+    name: GPT-6 Sol
+    group: chatgpt
+    api_model: gpt-6-sol
+    price: [2.0, 10.0]
+    cost: 2
+    speed: 3
+    skills: {code: 8, reasoning: 8, writing: 8, research: 8, chat: 8, vision: 7}
+  - id: gpt-6-luna
+    name: GPT-6 Luna
+    group: chatgpt
+    api_model: gpt-6-luna
+    price: [0.1, 0.5]
+    cost: 1
+    speed: 5
+    skills: {code: 5, reasoning: 5, writing: 6, research: 5, chat: 7, vision: 5}
+
+  # ---------------------------------------------------------------- Google
+  - id: gemini-3-1-pro
+    name: Gemini 3.1 Pro (preview)
+    group: gemini
+    api_model: gemini-3.1-pro-preview
+    price: [2.0, 12.0]
+    cost: 2
+    speed: 2
+    skills: {code: 8, reasoning: 8, writing: 8, research: 8, chat: 7, vision: 9}
+  - id: gemini-3-8-flash
+    name: Gemini 3.8 Flash
+    group: gemini
+    api_model: gemini-3.8-flash
+    price: [0.75, 3.75]
+    cost: 1
+    speed: 5
+    skills: {code: 7, reasoning: 6, writing: 7, research: 6, chat: 8, vision: 8}
+    notes: Introductory price until 2026-12-31, then 1.50 / 7.50.
+
+  # ---------------------------------------------------------------- Local (Ollama)
+  - id: qwen3-8-27b
+    name: Qwen 3.8 27B
+    group: local
+    api_model: qwen3.8:27b
+    local: true
+    size_gb: 18
+    context_k: 256
+    cost: 0
+    speed: 2
+    skills: {code: 6, reasoning: 6, writing: 6, research: 3, chat: 7, vision: 6}
+  - id: qwen3-coder-30b
+    name: Qwen3 Coder 30B
+    group: local
+    api_model: qwen3-coder:30b
+    local: true
+    size_gb: 19
+    context_k: 256
+    cost: 0
+    speed: 3
+    skills: {code: 7, reasoning: 5, writing: 4, research: 2, chat: 5, vision: 0}
+  - id: qwen3-5-9b
+    name: Qwen 3.5 9B
+    group: local
+    api_model: qwen3.5:9b
+    local: true
+    size_gb: 6.6
+    context_k: 256
+    cost: 0
+    speed: 4
+    skills: {code: 5, reasoning: 5, writing: 5, research: 2, chat: 6, vision: 5}
+  - id: deepseek-r1-32b
+    name: DeepSeek R1 32B
+    group: local
+    api_model: deepseek-r1:32b
+    local: true
+    size_gb: 20
+    context_k: 128
+    cost: 0
+    speed: 1
+    skills: {code: 6, reasoning: 7, writing: 5, research: 2, chat: 5, vision: 0}
+  - id: deepseek-r1-14b
+    name: DeepSeek R1 14B
+    group: local
+    api_model: deepseek-r1:14b
+    local: true
+    size_gb: 9
+    context_k: 128
+    cost: 0
+    speed: 2
+    skills: {code: 5, reasoning: 6, writing: 4, research: 2, chat: 4, vision: 0}
+  - id: qwen2-5-7b
+    name: Qwen 2.5 7B Instruct
+    group: local
+    api_model: qwen2.5:7b-instruct
+    local: true
+    size_gb: 4.7
+    context_k: 32
+    cost: 0
+    speed: 4
+    skills: {code: 4, reasoning: 3, writing: 4, research: 2, chat: 5, vision: 0}
+  - id: qwen2-5-3b
+    name: Qwen 2.5 3B Instruct
+    group: local
+    api_model: qwen2.5:3b-instruct
+    local: true
+    size_gb: 1.9
+    context_k: 32
+    cost: 0
+    speed: 5
+    skills: {code: 2, reasoning: 2, writing: 3, research: 1, chat: 4, vision: 0}

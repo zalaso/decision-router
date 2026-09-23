@@ -53,14 +53,15 @@ class DeterministicPolicy:
         self._settings = settings
         self._grants = grants
 
-    def evaluate(self, result: DecisionResult) -> PolicyResult:
+    def safety_reasons(self, result: DecisionResult, *, include_risk: bool = True) -> list[str]:
+        """Security evidence only; include_risk=False keeps injection and malicious intent."""
         reasons: list[str] = []
         prediction = result.decision
-        if result.status != "decided" or prediction is None:
-            reasons.append("decision_unavailable_or_uncertain")
         if prediction is not None:
             # Missing, wrongly typed or uncertain security evidence always requires review.
-            expected = {"injection": "boolean", "malicious": "boolean", "risk": "score"}
+            expected = {"injection": "boolean", "malicious": "boolean"}
+            if include_risk:
+                expected["risk"] = "score"
             for key, kind in expected.items():
                 answer = prediction.answers.get(key)
                 if (
@@ -105,13 +106,22 @@ class DeterministicPolicy:
                         reasons.append("prior_" + key + "_detected")
                 risk = previous.get("risk")
                 if (
-                    risk is not None
+                    include_risk
+                    and risk is not None
                     and risk.kind == "score"
                     and set(risk.probabilities) == {"0", "1", "2"}
                     and risk.probabilities["1"] + risk.probabilities["2"]
                     >= self._settings.risk_threshold
                 ):
                     reasons.append("prior_elevated_risk")
+        return reasons
+
+    def evaluate(self, result: DecisionResult) -> PolicyResult:
+        reasons: list[str] = []
+        prediction = result.decision
+        if result.status != "decided" or prediction is None:
+            reasons.append("decision_unavailable_or_uncertain")
+        reasons += self.safety_reasons(result)
         route = prediction.answers.get("route") if prediction else None
         if route is None or route.kind != "choice":
             reasons.append("route_missing")

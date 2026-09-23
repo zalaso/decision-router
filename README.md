@@ -6,12 +6,14 @@
 ![Python](https://img.shields.io/badge/python-3.12%2B-3b5bdb)
 ![License](https://img.shields.io/badge/license-MIT-3b5bdb)
 
-**Decide a quale agente AI affidare una richiesta, e se è sicuro farlo.**
+**Decide a quale agente o modello AI affidare una richiesta, e se è sicuro farlo.**
 
-Hai più agenti (uno scrive codice, uno fa ricerca, uno usa il browser…).
-Per ogni richiesta il Decision Router suggerisce l'agente più adatto e, in
-parallelo, controlla prompt injection, intento malevolo e livello di rischio.
-Se qualcosa non è chiaro, non tira a indovinare: chiede la **revisione umana**.
+Hai più agenti (uno scrive codice, uno fa ricerca, uno usa il browser…) e
+magari più abbonamenti o modelli (Claude, ChatGPT, Gemini, modelli locali con
+Ollama). Per ogni richiesta il Decision Router suggerisce **l'agente** o **il
+modello** più adatto tra quelli che hai e, in parallelo, controlla prompt
+injection, intento malevolo e livello di rischio. Se qualcosa non è chiaro, non
+tira a indovinare: chiede la **revisione umana**.
 
 Il router **suggerisce e basta**: non esegue agenti, non tocca file e non
 concede permessi.
@@ -26,6 +28,7 @@ concede permessi.
 - [Avvio rapido](#avvio-rapido)
 - [Come funziona](#come-funziona)
 - [La dashboard](#la-dashboard)
+- [Scegliere il modello](#scegliere-il-modello)
 - [Usarlo dal codice: HTTP, CLI, Python](#usarlo-dal-codice)
 - [Usare un modello reale](#usare-un-modello-reale)
 - [Configurazione](#configurazione)
@@ -135,6 +138,8 @@ Si apre con `decision-router serve --open` (o con gli script di avvio) su
 <http://127.0.0.1:8000/dashboard/>. È servita dalla stessa API, senza build,
 senza CDN e senza dipendenze aggiuntive: funziona anche offline.
 
+- **Scegli il modello**: il modello consigliato tra quelli che hai, più le
+  alternative (vedi [sotto](#scegliere-il-modello)).
 - **Instrada**: scrivi una richiesta (o prova gli esempi, compresi un prompt
   injection e una richiesta malevola) e vedi l'agente suggerito, le probabilità
   per ciascun agente e i tre controlli di sicurezza rispetto alle soglie.
@@ -154,7 +159,74 @@ chiaro e scuro automatico.
 Un link come `http://127.0.0.1:8000/dashboard/?prompt=Write%20Python%20code`
 apre la dashboard e instrada subito quella richiesta.
 
+Con `#models` in fondo al link (`...?prompt=...#models`) la richiesta va invece
+alla scheda "Scegli il modello".
+
 Per esporre solo l'API senza interfaccia: `ROUTER_DASHBOARD=false`.
+
+## Scegliere il modello
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/models-dark.png">
+  <img alt="Scheda Scegli il modello: modello consigliato, alternative e lettura della richiesta" src="docs/img/models.png">
+</picture>
+
+Scrivi cosa devi fare e il router ti dice **quale modello usare tra quelli che
+hai**: un modello consigliato e, sotto, le alternative.
+
+| Scelta | Come viene decisa |
+|---|---|
+| **Consigliato** | Secondo la tua priorità: *Equilibrio* (default), *Risparmio*, *Velocità* o *Qualità* |
+| Il più economico che basta | Il costo più basso tra i modelli che raggiungono il livello richiesto |
+| Il più veloce che basta | Il più rapido tra i modelli che raggiungono il livello richiesto |
+| Il migliore disponibile | Il più capace che hai per quel compito, a prescindere dal costo |
+| Il migliore in locale | Il migliore tra i modelli Ollama: gratis e privato |
+
+*Equilibrio* sceglie il modello più economico che supera il livello richiesto
+con un margine di sicurezza.
+
+**Come funziona.** Il classificatore non indovina il modello: capisce solo che
+tipo di compito è (codice, ragionamento, scrittura, ricerca, conversazione,
+immagini) e quanto è complesso (bassa, media, alta). Poi regole fisse
+confrontano queste risposte con un catalogo di modelli e scelgono tra quelli che
+hai selezionato:
+
+- ogni modello ha un punteggio da 0 a 10 per tipo di compito, un costo relativo
+  e una velocità;
+- la complessità fissa il livello minimo: 4/10, 6/10 o 8/10;
+- se la richiesta è ambigua tra due compiti, il modello deve essere bravo in
+  entrambi; se la complessità è incerta, la considera un livello più alta.
+  Nel dubbio sale verso un modello più capace, invece di bloccarsi;
+- prompt injection e intento malevolo bloccano il consiglio (revisione umana).
+  Il rischio di esecuzione qui è solo informativo, perché scegliere un modello
+  non esegue nulla.
+
+**I tuoi modelli.** Nella dashboard, sotto "I miei modelli", spunti i servizi a
+cui hai accesso (abbonamento Claude, ChatGPT, Gemini o le relative API) e i
+modelli locali. La scelta resta nel browser. Se [Ollama](https://ollama.com) è
+attivo, i modelli scaricati vengono **rilevati da soli**. Anche quelli che non
+sono nel catalogo compaiono, con un profilo stimato in base alla dimensione.
+
+**Il catalogo** è in [`src/decision_router/catalog.yaml`](src/decision_router/catalog.yaml).
+Contiene Claude (Fable 5.1, Opus 5.5, Opus 5, Sonnet 5, Haiku 4.5), OpenAI
+(GPT-6 Astra, Sol, Luna), Google (Gemini 3.1 Pro, 3.8 Flash) e modelli locali
+(Qwen, DeepSeek R1). Nomi, prezzi API, contesto e dimensioni vengono dalle
+pagine ufficiali (verificati il 23 settembre 2026). I **punteggi per compito sono
+stime**: copia il file, modificalo e indicalo con `ROUTER_MODEL_CATALOG` per
+usare i tuoi.
+
+Dalla riga di comando:
+
+```bash
+decision-router recommend "Write a Python script that reads a CSV file"
+decision-router recommend "Summarize this contract" --models claude-sonnet-5,qwen2-5-7b --priority economy
+decision-router recommend "Translate this email" --local-only
+```
+
+Via HTTP: `POST /v1/models/recommend` con `prompt`, `available` (gli ID del
+catalogo che puoi usare), `priority` e `local_only`. Il router **consiglia e
+basta**: per chiamare davvero il modello scelto usa il suo `api_model` con il
+tuo client o con un gateway multi-modello.
 
 ## Usarlo dal codice
 
@@ -166,6 +238,8 @@ interattiva OpenAPI è su <http://127.0.0.1:8000/docs>.
 | Endpoint | Uso |
 |---|---|
 | `POST /v1/route` | Instrada una richiesta: agente suggerito + controlli di sicurezza + policy. |
+| `POST /v1/models/recommend` | Consiglia il modello da usare tra quelli disponibili, con alternative. |
+| `GET /v1/models` | Catalogo dei modelli e modelli Ollama rilevati (`?rescan=true` per aggiornare). |
 | `POST /v1/decisions` | Decisione generica con domande tue (contratto in `examples/decision.json`). |
 | `GET /v1/status` | Configurazione attiva, senza segreti. |
 | `GET /health` | Stato del servizio. |
@@ -203,11 +277,13 @@ candidati come uscita sicura.
 
 ```bash
 decision-router route "Write Python code"
+decision-router recommend "Write Python code" --priority quality
 decision-router decide examples/decision.json
 decision-router serve --port 9000 --config config/example.yaml
 ```
 
-Exit code: `0` decisione presa, `2` revisione umana, `1` errore di avvio o input.
+Exit code: `0` decisione presa (o modello consigliato), `2` revisione umana o
+nessun modello da consigliare, `1` errore di avvio o input.
 Comodo negli script: `decision-router route "..." || echo "serve una persona"`.
 
 ### Libreria Python
@@ -308,6 +384,9 @@ non viene caricato automaticamente.
 | `ROUTER_SAFETY_MIN_CONFIDENCE` | `0.80` | Confidence minima dei controlli di sicurezza |
 | `ROUTER_INJECTION_THRESHOLD` / `_MALICIOUS_` / `_RISK_` | `0.30` | Soglie dei tre controlli |
 | `ROUTER_DASHBOARD` | `true` | Serve la dashboard su `/dashboard/` |
+| `ROUTER_MODEL_CATALOG` | vuoto | Percorso di un catalogo modelli YAML personalizzato |
+| `ROUTER_OLLAMA_DETECT` | `true` | Rileva i modelli scaricati con Ollama |
+| `ROUTER_OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Indirizzo di Ollama (solo loopback) |
 | `ROUTER_API_TOKEN` | vuoto | Se impostato, richiede `Authorization: Bearer <token>` |
 | `TYPESAFE_API_KEY` | vuoto | Chiave per il cloud Jev |
 

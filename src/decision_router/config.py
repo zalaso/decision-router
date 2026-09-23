@@ -17,13 +17,13 @@ PRIMARY_REVISION = "8adb042d524ecd5c26d3e3ba0e3fbcf7e2d0864c"
 Temperature = Annotated[float, Field(gt=0, le=100, allow_inf_nan=False)]
 
 
-def validate_rizzo_origin(value: str) -> str:
+def validate_rizzo_origin(value: str, service: str = "Rizzo Flow") -> str:
     try:
         parsed = urlsplit(value)
         address = ip_address(parsed.hostname or "")
         port = parsed.port
     except ValueError:
-        raise ValueError("Rizzo Flow URL must use a numeric loopback address") from None
+        raise ValueError(f"{service} URL must use a numeric loopback address") from None
     if (
         parsed.scheme != "http"
         or not address.is_loopback
@@ -35,7 +35,7 @@ def validate_rizzo_origin(value: str) -> str:
         or parsed.query
         or parsed.fragment
     ):
-        raise ValueError("Rizzo Flow URL must be an HTTP loopback origin with a port")
+        raise ValueError(f"{service} URL must be an HTTP loopback origin with a port")
     host = f"[{address}]" if address.version == 6 else str(address)
     return f"http://{host}:{port}"
 
@@ -64,6 +64,10 @@ class Settings(Model):
     max_concurrent_requests: int = Field(default=4, ge=1, le=1000)
     require_https: bool = False
     dashboard: bool = True
+    # Model recommendation: optional YAML catalog replacing the packaged one.
+    model_catalog: str | None = Field(default=None, min_length=1, max_length=1024)
+    ollama_detect: bool = True
+    ollama_base_url: str = "http://127.0.0.1:11434"
     temperature: Temperature = 1.0
     temperature_by_question: dict[str, Temperature] = Field(default_factory=dict)
     typesafe_api_key: SecretStr = SecretStr("")
@@ -73,6 +77,11 @@ class Settings(Model):
     @classmethod
     def loopback_rizzo_url(cls, value: str) -> str:
         return validate_rizzo_origin(value)
+
+    @field_validator("ollama_base_url")
+    @classmethod
+    def loopback_ollama_url(cls, value: str) -> str:
+        return validate_rizzo_origin(value, "Ollama")
 
     @model_validator(mode="after")
     def thresholds(self) -> Self:

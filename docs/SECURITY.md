@@ -61,6 +61,16 @@ riporta la presenza delle credenziali, mai i valori. La configurazione non si
 modifica dal browser. `ROUTER_DASHBOARD=false` rimuove l'interfaccia.
 `decision-router serve` rifiuta indirizzi non di loopback senza token.
 
+Il rilevamento dei modelli Ollama fa una sola `GET /api/tags` verso
+`ROUTER_OLLAMA_BASE_URL`, accettato solo come origine HTTP di loopback numerica,
+con timeout di 1,5 s, senza redirect né proxy d'ambiente. La risposta viene
+letta in modo difensivo (al massimo 200 voci; nomi usati solo come testo; ID
+normalizzati). `ROUTER_OLLAMA_DETECT=false` lo disattiva. La raccomandazione del
+modello non chiama i modelli e non concede permessi: blocca su injection e
+intento malevolo; il rischio di esecuzione resta informativo, perché scegliere
+un modello non esegue nulla. Chi usa il modello consigliato per agire deve
+applicare la propria autorizzazione.
+
 Mancano quote per identità e coordinate fra più processi, terminazione TLS,
 gestione identità, cifratura dei log e policy di retention. Prima di esporre il
 servizio fuori loopback servono questi controlli nell'infrastruttura fidata,

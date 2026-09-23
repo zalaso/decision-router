@@ -198,6 +198,100 @@
       "yes": "sì",
       "no": "no",
       "footer.note": "Decision Router · suggerisce, non esegue.",
+      "tab.models": "Scegli il modello",
+      "models.prompt": "Cosa devi fare?",
+      "models.placeholder": "Es. «Scrivi uno script Python che legge un file CSV»",
+      "models.priority": "Cosa conta di più?",
+      "prio.balanced": "Equilibrio",
+      "prio.economy": "Risparmio",
+      "prio.speed": "Velocità",
+      "prio.quality": "Qualità",
+      "prio.balanced.hint": "Un modello abbastanza forte, con margine, al costo più basso.",
+      "prio.economy.hint": "Il modello più economico che basta per il compito.",
+      "prio.speed.hint": "Il modello più veloce che basta per il compito.",
+      "prio.quality.hint": "Il modello migliore che hai, a prescindere dal costo.",
+      "models.localOnly": "Solo modelli locali (i dati non escono dal computer)",
+      "models.mine": "I miei modelli",
+      "models.mineHint": "Spunta i servizi a cui hai accesso (abbonamento o chiave API) e i modelli che hai scaricato. La scelta resta in questo browser.",
+      "models.rescan": "Rileva modelli Ollama",
+      "models.submit": "Consiglia il modello",
+      "models.emptyTitle": "Quale modello usare?",
+      "models.empty1": "Il modello consigliato tra quelli che hai, con il motivo.",
+      "models.empty2": "Le alternative: il più economico, il più veloce, il migliore, quello locale.",
+      "models.empty3": "Come il router ha interpretato la richiesta: tipo di compito e complessità.",
+      "models.emptyNote": "Prezzi dalle pagine ufficiali; i punteggi per compito sono stime modificabili.",
+      "models.recommended": "Modello consigliato",
+      "models.outcome": "Esito",
+      "models.reviewDesc": "La richiesta sembra un tentativo di manipolazione o un uso malevolo: nessun modello viene consigliato finché una persona non la verifica.",
+      "models.why": "Compito: {task} · complessità {level} → serve almeno {req}/10. Questo modello: {skill}/10.",
+      "models.others": "Altre scelte",
+      "models.same": "= consigliato",
+      "models.belowLevel": "sotto il livello",
+      "models.reading": "Come ho letto la richiesta",
+      "models.taskLabel": "Tipo di compito",
+      "models.complexityLabel": "Complessità",
+      "models.safetyLabel": "Sicurezza",
+      "models.riskInfo": "Qui il rischio di esecuzione è solo informativo: scegliere un modello non esegue nulla.",
+      "models.table": "I tuoi modelli per questo compito",
+      "models.col.model": "Modello",
+      "models.col.level": "Livello",
+      "models.col.price": "Prezzo",
+      "models.col.speed": "Velocità",
+      "models.col.status": "Stato",
+      "models.fits": "adatto",
+      "models.below": "sotto il livello",
+      "excl.unsupported_task": "non supporta il compito",
+      "excl.not_local": "escluso: non locale",
+      "models.noRecommendation": "Nessun modello da consigliare",
+      "models.installed": "scaricato",
+      "models.notInstalled": "non scaricato",
+      "models.estimated": "profilo stimato",
+      "price.free": "gratis",
+      "price.per": "USD per 1M token (input / output)",
+      "ollama.off": "Rilevamento Ollama disattivato.",
+      "ollama.found": "Ollama attivo: {n} modelli scaricati.",
+      "ollama.unreachable": "Ollama non raggiungibile: avvialo per rilevare i modelli scaricati.",
+      "group.claude": "Abbonamento Claude o API Anthropic",
+      "group.chatgpt": "Abbonamento ChatGPT o API OpenAI",
+      "group.gemini": "Abbonamento Gemini o API Google",
+      "group.local": "Scaricati con Ollama: gratis, i dati restano sul computer",
+      "grouplabel.local": "Locali (Ollama)",
+      "task.code": "codice",
+      "task.reasoning": "ragionamento",
+      "task.writing": "scrittura",
+      "task.research": "ricerca",
+      "task.chat": "conversazione",
+      "task.vision": "immagini",
+      "cx.0": "bassa",
+      "cx.1": "media",
+      "cx.2": "alta",
+      "strat.balanced": "Equilibrio",
+      "strat.economy": "Il più economico che basta",
+      "strat.speed": "Il più veloce che basta",
+      "strat.quality": "Il migliore disponibile",
+      "strat.local": "Il migliore in locale",
+      "strat.balanced.desc": "Abbastanza forte, con un margine di sicurezza, al costo più basso tra i tuoi modelli.",
+      "strat.economy.desc": "Il costo più basso tra i modelli che raggiungono il livello richiesto.",
+      "strat.speed.desc": "Il più rapido tra i modelli che raggiungono il livello richiesto.",
+      "strat.quality.desc": "Il più capace che hai per questo compito, a prescindere dal costo.",
+      "strat.local.desc": "Gira sul tuo computer: gratis e privato, ma la velocità dipende dal tuo hardware.",
+      "note.task_uncertain": "Richiesta ambigua tra {a} e {b}: ho cercato un modello bravo in entrambi.",
+      "note.complexity_uncertain": "Complessità incerta: l'ho considerata un livello più alta.",
+      "note.none_fits": "Nessuno dei tuoi modelli raggiunge il livello richiesto: ti propongo il più capace.",
+      "note.no_models_available": "Nessun modello disponibile: seleziona i tuoi modelli (o togli «solo locali»).",
+      "note.no_suitable_models": "Nessuno dei tuoi modelli supporta questo tipo di compito.",
+      "note.unknown_models_ignored": "Alcuni modelli selezionati non sono più nel catalogo e sono stati ignorati.",
+      "v.noModels": "Seleziona almeno un modello in «I miei modelli».",
+      "mex.code": "Codice",
+      "mex.writing": "Email",
+      "mex.reasoning": "Logica",
+      "mex.research": "Ricerca",
+      "mex.vision": "Immagine",
+      "mex.chat": "Saluto",
+      "how.modelTitle": "Scegliere il modello giusto",
+      "how.model1": "Nella scheda «Scegli il modello» il classificatore non indovina il modello: capisce solo che tipo di compito è e quanto è difficile.",
+      "how.model2": "Poi regole fisse confrontano la richiesta con un catalogo di modelli (prezzi ufficiali e punteggi per compito) e scelgono tra quelli che hai selezionato: il consigliato secondo la tua priorità, più le alternative.",
+      "how.model3": "I punteggi sono stime: il catalogo è un file YAML modificabile (ROUTER_MODEL_CATALOG). Se Ollama è attivo, i modelli scaricati vengono rilevati da soli.",
     },
     en: {
       "status.loading": "Connecting…",
@@ -393,6 +487,100 @@
       "yes": "yes",
       "no": "no",
       "footer.note": "Decision Router · suggests, never executes.",
+      "tab.models": "Choose a model",
+      "models.prompt": "What do you need to do?",
+      "models.placeholder": "E.g. “Write a Python script that reads a CSV file”",
+      "models.priority": "What matters most?",
+      "prio.balanced": "Balance",
+      "prio.economy": "Savings",
+      "prio.speed": "Speed",
+      "prio.quality": "Quality",
+      "prio.balanced.hint": "A model strong enough, with headroom, at the lowest cost.",
+      "prio.economy.hint": "The cheapest model that is good enough for the task.",
+      "prio.speed.hint": "The fastest model that is good enough for the task.",
+      "prio.quality.hint": "The best model you have, regardless of cost.",
+      "models.localOnly": "Local models only (data never leaves the computer)",
+      "models.mine": "My models",
+      "models.mineHint": "Tick the services you can use (subscription or API key) and the models you have downloaded. Your choice stays in this browser.",
+      "models.rescan": "Detect Ollama models",
+      "models.submit": "Recommend a model",
+      "models.emptyTitle": "Which model should you use?",
+      "models.empty1": "The recommended model among those you have, and why.",
+      "models.empty2": "The alternatives: cheapest, fastest, best, and local.",
+      "models.empty3": "How the router read the request: task type and complexity.",
+      "models.emptyNote": "Prices come from official pages; per-task scores are editable estimates.",
+      "models.recommended": "Recommended model",
+      "models.outcome": "Outcome",
+      "models.reviewDesc": "The request looks like manipulation or malicious use: no model is recommended until a person checks it.",
+      "models.why": "Task: {task} · {level} complexity → needs at least {req}/10. This model: {skill}/10.",
+      "models.others": "Other choices",
+      "models.same": "= recommended",
+      "models.belowLevel": "below the level",
+      "models.reading": "How I read the request",
+      "models.taskLabel": "Task type",
+      "models.complexityLabel": "Complexity",
+      "models.safetyLabel": "Safety",
+      "models.riskInfo": "Execution risk is informational here: choosing a model runs nothing.",
+      "models.table": "Your models for this task",
+      "models.col.model": "Model",
+      "models.col.level": "Level",
+      "models.col.price": "Price",
+      "models.col.speed": "Speed",
+      "models.col.status": "Status",
+      "models.fits": "suitable",
+      "models.below": "below the level",
+      "excl.unsupported_task": "does not support the task",
+      "excl.not_local": "excluded: not local",
+      "models.noRecommendation": "No model to recommend",
+      "models.installed": "downloaded",
+      "models.notInstalled": "not downloaded",
+      "models.estimated": "estimated profile",
+      "price.free": "free",
+      "price.per": "USD per 1M tokens (input / output)",
+      "ollama.off": "Ollama detection is off.",
+      "ollama.found": "Ollama running: {n} models downloaded.",
+      "ollama.unreachable": "Ollama unreachable: start it to detect downloaded models.",
+      "group.claude": "Claude subscription or Anthropic API",
+      "group.chatgpt": "ChatGPT subscription or OpenAI API",
+      "group.gemini": "Gemini subscription or Google API",
+      "group.local": "Downloaded with Ollama: free, data stays on the computer",
+      "grouplabel.local": "Local (Ollama)",
+      "task.code": "code",
+      "task.reasoning": "reasoning",
+      "task.writing": "writing",
+      "task.research": "research",
+      "task.chat": "conversation",
+      "task.vision": "images",
+      "cx.0": "low",
+      "cx.1": "medium",
+      "cx.2": "high",
+      "strat.balanced": "Balance",
+      "strat.economy": "Cheapest that is good enough",
+      "strat.speed": "Fastest that is good enough",
+      "strat.quality": "Best available",
+      "strat.local": "Best local option",
+      "strat.balanced.desc": "Strong enough, with a safety margin, at the lowest cost among your models.",
+      "strat.economy.desc": "The lowest cost among the models that reach the required level.",
+      "strat.speed.desc": "The fastest among the models that reach the required level.",
+      "strat.quality.desc": "The most capable model you have for this task, regardless of cost.",
+      "strat.local.desc": "Runs on your computer: free and private, but speed depends on your hardware.",
+      "note.task_uncertain": "Ambiguous between {a} and {b}: I looked for a model good at both.",
+      "note.complexity_uncertain": "Uncertain complexity: I treated it as one level higher.",
+      "note.none_fits": "None of your models reaches the required level: here is the most capable one.",
+      "note.no_models_available": "No models available: select your models (or untick “local only”).",
+      "note.no_suitable_models": "None of your models supports this kind of task.",
+      "note.unknown_models_ignored": "Some selected models are no longer in the catalog and were ignored.",
+      "v.noModels": "Select at least one model under “My models”.",
+      "mex.code": "Code",
+      "mex.writing": "Email",
+      "mex.reasoning": "Logic",
+      "mex.research": "Research",
+      "mex.vision": "Image",
+      "mex.chat": "Greeting",
+      "how.modelTitle": "Choosing the right model",
+      "how.model1": "In the “Choose a model” tab the classifier does not guess the model: it only works out what kind of task it is and how hard.",
+      "how.model2": "Fixed rules then match the request against a model catalog (official prices and per-task scores) and pick among the models you selected: the recommendation for your priority, plus alternatives.",
+      "how.model3": "Scores are estimates: the catalog is an editable YAML file (ROUTER_MODEL_CATALOG). If Ollama is running, downloaded models are detected automatically.",
     },
   };
 
@@ -494,12 +682,14 @@
     renderStatus();
     renderAgents();
     renderConfig();
-    // Shareable links: /dashboard/?prompt=... pre-fills and routes once.
+    if (first) await loadCatalog();
+    // Shareable links: /dashboard/?prompt=... runs once; add #models for a model recommendation.
     const shared = new URLSearchParams(location.search).get("prompt");
     if (first && shared) {
-      $("#route-prompt").value = shared.slice(0, 32000);
-      selectTab("route");
-      submitRoute();
+      const models = location.hash === "#models";
+      $(models ? "#models-prompt" : "#route-prompt").value = shared.slice(0, 32000);
+      selectTab(models ? "models" : "route");
+      models ? submitModels() : submitRoute();
     }
   }
 
@@ -520,7 +710,7 @@
   }
 
   // ------------------------------------------------------------------ tabs
-  const TABS = ["route", "decide", "how", "config"];
+  const TABS = ["route", "models", "decide", "how", "config"];
   function selectTab(name, push = true) {
     if (!TABS.includes(name)) name = "route";
     for (const b of $$(".tabs button")) b.setAttribute("aria-selected", String(b.dataset.tab === name));
@@ -536,12 +726,16 @@
     for (const b of $$(".lang button")) b.setAttribute("aria-pressed", String(b.dataset.lang === lang));
     renderStatus();
     renderExamples();
+    renderModelExamples();
+    renderPriority();
+    renderModelGroups();
     renderAgents();
     renderQuestions();
     renderConfig();
     renderHistory();
     if (state.lastRoute) renderRoute(state.lastRoute.data, state.lastRoute.request);
     if (state.lastDecide) renderDecision(state.lastDecide.data, state.lastDecide.request);
+    if (state.lastModels) renderModels(state.lastModels.data, state.lastModels.request);
   }
 
   // ------------------------------------------------------------------ route: inputs
@@ -968,6 +1162,277 @@
     $("#decide-output").replaceChildren(...cards);
   }
 
+  // ------------------------------------------------------------------ model recommendation
+  const MODEL_EXAMPLES = [
+    ["mex.code", "Write Python code to parse a CSV file and fix the failing test"],
+    ["mex.writing", "Write an email to my team about the new release"],
+    ["mex.reasoning", "Solve this math problem with logic: how many handshakes happen among 12 people?"],
+    ["mex.research", "Find sources and research the history of the Roman aqueducts"],
+    ["mex.vision", "Describe this screenshot image and read the chart values"],
+    ["mex.chat", "Hello, how are you today?"],
+  ];
+  const PRIORITIES = ["balanced", "economy", "speed", "quality"];
+  let priority = store.get("localStorage", "dr.priority");
+  if (!PRIORITIES.includes(priority)) priority = "balanced";
+  state.catalog = null;
+  state.selected = new Set();
+  state.lastModels = null;
+
+  function readSelection() {
+    try {
+      const saved = JSON.parse(store.get("localStorage", "dr.models") || "null");
+      return saved && Array.isArray(saved.selected) ? saved : null;
+    } catch { return null; }
+  }
+
+  function saveSelection() {
+    const models = state.catalog?.models ?? [];
+    store.set("localStorage", "dr.models", JSON.stringify({
+      selected: [...state.selected],
+      known: models.map((m) => m.id),
+      installed: models.filter((m) => m.local && m.installed).map((m) => m.id),
+    }));
+  }
+
+  async function loadCatalog(rescan = false) {
+    const res = await api("GET", `/v1/models${rescan ? "?rescan=true" : ""}`);
+    if (!res.ok) {
+      $("#ollama-status").textContent = res.error;
+      return;
+    }
+    state.catalog = res.data;
+    const saved = readSelection();
+    const known = new Set(saved?.known ?? []);
+    const wasInstalled = new Set(saved?.installed ?? []);
+    const selected = new Set(saved?.selected ?? []);
+    // Defaults: every cloud model, plus local models once Ollama reports them installed.
+    for (const m of res.data.models) {
+      const fresh = !known.has(m.id) && !m.local;
+      const newlyInstalled = m.local && m.installed && !wasInstalled.has(m.id);
+      if (fresh || newlyInstalled) selected.add(m.id);
+    }
+    state.selected = selected;
+    saveSelection();
+    if (!saved) $("#mymodels-disclosure").open = true;
+    renderModelGroups();
+  }
+
+  const modelById = (id) => state.catalog?.models.find((m) => m.id === id)
+    ?? { id, name: id, api_model: id, group: "", local: false, skills: {}, speed: 1, cost: 0 };
+  const groupLabel = (id) => (I18N[lang][`grouplabel.${id}`] ? t(`grouplabel.${id}`)
+    : state.catalog?.groups.find((g) => g.id === id)?.label ?? id);
+  const money = (x) => `$${Number(x).toLocaleString("en", {
+    minimumFractionDigits: x > 0 && x < 1 ? 2 : 0, maximumFractionDigits: 2,
+  })}`;
+  const priceText = (m) => (m.local ? t("price.free") : m.price ? `${money(m.price[0])} / ${money(m.price[1])}` : "—");
+  const speedDots = (n) => "●".repeat(n) + "○".repeat(5 - n);
+  const mini = (text, kind = "", title) => el("span", { class: `mini${kind ? ` ${kind}` : ""}`, text, title });
+
+  function modelTags(m) {
+    const tags = [];
+    if (m.local && m.installed === true) tags.push(mini(t("models.installed"), "ok"));
+    if (m.local && m.installed === false) tags.push(mini(t("models.notInstalled"), "warn", `ollama pull ${m.api_model}`));
+    if (m.estimated) tags.push(mini(t("models.estimated"), "warn"));
+    tags.push(mini(priceText(m), "", m.local ? undefined : t("price.per")));
+    return tags;
+  }
+
+  function renderModelGroups() {
+    const cat = state.catalog;
+    const box = $("#model-groups");
+    if (!cat) { box.replaceChildren(); return; }
+    const ids = new Set(cat.models.map((m) => m.id));
+    $("#mymodels-count").textContent = `(${[...state.selected].filter((id) => ids.has(id)).length}/${ids.size})`;
+    const groups = cat.groups.map((g) => {
+      const models = cat.models.filter((m) => m.group === g.id);
+      if (!models.length) return null;
+      const count = models.filter((m) => state.selected.has(m.id)).length;
+      const all = el("input", { type: "checkbox", "aria-label": groupLabel(g.id) });
+      all.checked = count === models.length;
+      all.indeterminate = count > 0 && count < models.length;
+      all.addEventListener("change", () => {
+        for (const m of models) all.checked ? state.selected.add(m.id) : state.selected.delete(m.id);
+        saveSelection();
+        renderModelGroups();
+      });
+      const rows = models.map((m) => {
+        const box = el("input", { type: "checkbox" });
+        box.checked = state.selected.has(m.id);
+        box.addEventListener("change", () => {
+          box.checked ? state.selected.add(m.id) : state.selected.delete(m.id);
+          saveSelection();
+          renderModelGroups();
+        });
+        const missing = m.local && m.installed === false;
+        return el("label", { class: "mrow", title: missing ? `ollama pull ${m.api_model}` : m.api_model },
+          box,
+          el("span", { class: `mname${missing ? " dim" : ""}`, text: m.name }),
+          el("span", { class: "mtags" }, modelTags(m)));
+      });
+      return el("fieldset", { class: "mgroup" },
+        el("label", { class: "mgroup-head" }, all, el("strong", { text: groupLabel(g.id) }), mini(`${count}/${models.length}`)),
+        el("p", { class: "mgroup-desc", text: I18N[lang][`group.${g.id}`] ? t(`group.${g.id}`) : g.provider }),
+        el("div", { class: "mlist" }, rows));
+    }).filter(Boolean);
+    box.replaceChildren(...groups);
+    const o = cat.ollama;
+    $("#ollama-status").textContent = !o.enabled ? t("ollama.off")
+      : o.reachable ? t("ollama.found", { n: o.installed.length }) : t("ollama.unreachable");
+  }
+
+  function renderModelExamples() {
+    $("#models-examples").replaceChildren(...MODEL_EXAMPLES.map(([key, prompt]) => el("button", {
+      type: "button", class: "chip", text: t(key), title: prompt,
+      onclick: () => { $("#models-prompt").value = prompt; $("#models-prompt").focus(); },
+    })));
+  }
+
+  function renderPriority() {
+    for (const b of $$("#priority button")) b.setAttribute("aria-checked", String(b.dataset.priority === priority));
+    $("#priority-hint").textContent = t(`prio.${priority}.hint`);
+  }
+
+  async function submitModels(event) {
+    event?.preventDefault();
+    const prompt = $("#models-prompt").value.trim();
+    const errors = [];
+    if (!prompt) errors.push(t("v.prompt"));
+    const ids = new Set((state.catalog?.models ?? []).map((m) => m.id));
+    const available = [...state.selected].filter((id) => ids.has(id));
+    if (state.catalog && !available.length) {
+      errors.push(t("v.noModels"));
+      $("#mymodels-disclosure").open = true;
+    }
+    showError("#models-error", errors);
+    if (errors.length) return;
+    const request = { prompt, context: "", priority, local_only: $("#local-only").checked };
+    if (state.catalog) request.available = available;
+    const button = $("#models-submit");
+    button.disabled = true;
+    $("#models-output").replaceChildren(loadingCard());
+    const res = await api("POST", "/v1/models/recommend", request);
+    button.disabled = false;
+    if (!res.ok) {
+      showError("#models-error", [res.error]);
+      if (state.lastModels) renderModels(state.lastModels.data, state.lastModels.request);
+      else $("#models-output").replaceChildren();
+      return;
+    }
+    state.lastModels = { data: res.data, request };
+    renderModels(res.data, request);
+  }
+
+  function noteText(note, data) {
+    if (note === "task_uncertain") {
+      return t("note.task_uncertain", { a: t(`task.${data.task}`), b: t(`task.${data.second_task}`) });
+    }
+    return I18N[lang][`note.${note}`] ? t(`note.${note}`) : note;
+  }
+
+  function renderModels(data, request) {
+    const cards = [];
+    const notes = data.notes.length
+      ? el("ul", { class: "notes" }, data.notes.map((n) => el("li", { text: noteText(n, data) })))
+      : null;
+    const rec = data.recommended;
+    if (data.review_required) {
+      cards.push(el("section", { class: "card verdict review" },
+        el("div", { class: "verdict-icon", "aria-hidden": "true", text: "!" }),
+        el("div", {},
+          el("div", { class: "verdict-label", text: t("models.outcome") }),
+          el("div", { class: "verdict-agent", text: t("verdict.review") }),
+          el("p", { class: "verdict-desc", text: t("models.reviewDesc") }),
+          el("ul", { class: "reasons" }, data.reasons.map((r) => el("li", { text: I18N[lang][`reason.${r}`] ? t(`reason.${r}`) : r }))))));
+    } else if (rec) {
+      const m = modelById(rec.model);
+      cards.push(el("section", { class: "card verdict" },
+        el("div", { class: "verdict-icon", "aria-hidden": "true", text: "→" }),
+        el("div", {},
+          el("div", { class: "verdict-label", text: `${t("models.recommended")} · ${t(`prio.${request.priority}`)}` }),
+          el("div", { class: "model-name", text: m.name }),
+          el("p", { class: "model-sub" }, `${groupLabel(m.group)} · `, el("code", { text: m.api_model })),
+          el("p", { class: "model-why", text: t("models.why", {
+            task: t(`task.${data.task}`), level: t(`cx.${data.complexity}`), req: data.required_skill, skill: rec.skill,
+          }) }),
+          el("p", { class: "verdict-desc", text: t(`strat.${request.priority}.desc`) }),
+          el("div", { class: "verdict-meta" }, modelTags(m), mini(`${t("models.col.speed")} ${speedDots(m.speed)}`),
+            m.context_k ? mini(`${m.context_k >= 1000 ? `${m.context_k / 1000}M` : `${m.context_k}K`} context`) : null),
+          notes)));
+    } else {
+      cards.push(el("section", { class: "card verdict review" },
+        el("div", { class: "verdict-icon", "aria-hidden": "true", text: "?" }),
+        el("div", {},
+          el("div", { class: "verdict-label", text: t("models.outcome") }),
+          el("div", { class: "verdict-agent", text: t("models.noRecommendation") }),
+          notes)));
+    }
+
+    if (!data.review_required && data.alternatives.length) {
+      cards.push(el("section", { class: "card" },
+        el("h2", { text: t("models.others") }),
+        el("ol", { class: "alt-list" }, data.alternatives.map((a) => {
+          const m = modelById(a.model);
+          return el("li", { class: "alt" },
+            el("span", { class: "alt-strategy", text: t(`strat.${a.strategy}`) }),
+            el("span", { class: "alt-model", text: m.name }),
+            el("div", { class: "alt-side" },
+              mini(`${a.skill}/10`),
+              rec && a.model === rec.model ? mini(t("models.same"), "ok") : null,
+              a.fits ? null : mini(t("models.belowLevel"), "warn")),
+            el("span", { class: "alt-desc", text: `${t(`strat.${a.strategy}.desc`)} · ${priceText(m)} · ${speedDots(m.speed)}` }));
+        }))));
+    }
+
+    const decision = data.evaluation.decision;
+    if (decision) {
+      const s = state.status ?? {};
+      const min = s.safety_min_confidence ?? 0.8;
+      const task = decision.answers.task;
+      const complexity = decision.answers.complexity;
+      cards.push(el("section", { class: "card" },
+        el("h2", { text: t("models.reading") }),
+        el("div", { class: "subhead", text: t("models.taskLabel") }),
+        task ? bars(task.probabilities, task.selected, (k) => t(`task.${k}`)) : null,
+        el("div", { class: "subhead", text: t("models.complexityLabel") }),
+        complexity ? bars(complexity.probabilities, complexity.selected, (k) => t(`cx.${k}`)) : null,
+        el("div", { class: "subhead", text: t("models.safetyLabel") }),
+        el("div", { class: "checks" },
+          safetyCheck("injection", decision.answers.injection, s.injection_threshold ?? 0.3, min),
+          safetyCheck("malicious", decision.answers.malicious, s.malicious_threshold ?? 0.3, min),
+          safetyCheck("risk", decision.answers.risk, s.risk_threshold ?? 0.3, min)),
+        el("p", { class: "hint", text: t("models.riskInfo") })));
+    }
+
+    if (data.candidates.length) {
+      const rows = [...data.candidates].sort((a, b) =>
+        (a.excluded ? 1 : 0) - (b.excluded ? 1 : 0) || Number(b.fits) - Number(a.fits) || b.skill - a.skill);
+      cards.push(el("section", { class: "card" },
+        el("h2", { text: t("models.table") }),
+        el("div", { class: "table-wrap" }, el("table", { class: "model-table" },
+          el("thead", {}, el("tr", {},
+            el("th", { text: t("models.col.model") }),
+            el("th", { text: t("models.col.level") }),
+            el("th", { class: "hide-sm", text: t("models.col.price") }),
+            el("th", { class: "hide-sm", text: t("models.col.speed") }),
+            el("th", { text: t("models.col.status") }))),
+          el("tbody", {}, rows.map((row) => {
+            const m = modelById(row.model);
+            const fill = el("span");
+            fill.style.width = `${row.skill * 10}%`;
+            const status = row.excluded ? t(`excl.${row.excluded}`) : row.fits ? t("models.fits") : t("models.below");
+            return el("tr", { class: row.fits && !row.excluded ? "" : "muted" },
+              el("td", { text: m.name }),
+              el("td", {}, el("span", { class: "skill-bar" }, fill), row.excluded === "not_local" ? "—" : `${row.skill}/10`),
+              el("td", { class: "hide-sm", text: priceText(m) }),
+              el("td", { class: "hide-sm", text: speedDots(m.speed) }),
+              el("td", { text: status }));
+          }))))));
+    }
+    cards.push(executionCard(data.evaluation));
+    cards.push(rawCard("/v1/models/recommend", request, data));
+    $("#models-output").replaceChildren(...cards);
+  }
+
   // ------------------------------------------------------------------ config tab
   const CONFIG_ROWS = [
     ["mode", "ROUTER_MODE"],
@@ -1024,7 +1489,16 @@
 
     $("#route-form").addEventListener("submit", submitRoute);
     $("#decide-form").addEventListener("submit", submitDecision);
-    for (const [form, submit] of [["#route-form", submitRoute], ["#decide-form", submitDecision]]) {
+    $("#models-form").addEventListener("submit", submitModels);
+    for (const b of $$("#priority button")) b.addEventListener("click", () => {
+      priority = b.dataset.priority;
+      store.set("localStorage", "dr.priority", priority);
+      renderPriority();
+    });
+    $("#ollama-rescan").addEventListener("click", () => loadCatalog(true));
+    for (const [form, submit] of [
+      ["#route-form", submitRoute], ["#decide-form", submitDecision], ["#models-form", submitModels],
+    ]) {
       $(form).addEventListener("keydown", (e) => {
         if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) submit(e);
       });

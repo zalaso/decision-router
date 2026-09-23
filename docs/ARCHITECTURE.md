@@ -79,7 +79,18 @@ distribuita. La dashboard web (`dashboard.py` e `static/`) è un client dello
 stesso contratto HTTP: HTML, CSS e JavaScript statici, senza build né CDN,
 serviti dall'app FastAPI su `/dashboard/`. Legge `GET /v1/status` (fatti non
 segreti) e chiama `/v1/route` e `/v1/decisions` come qualunque altro client;
-non ha stato lato server e non modifica la configurazione. MIT per il codice originale. OmniRoute risolve il gateway per
+non ha stato lato server e non modifica la configurazione.
+
+La raccomandazione del modello (`recommend.py`, `catalog.py`) riusa lo stesso
+motore con domande proprie: una Choice sul tipo di compito, uno Score sulla
+complessità e le domande di sicurezza. Il classificatore non vede il catalogo.
+`rank()` è una funzione pura: dal compito, dal livello richiesto e dai modelli
+disponibili ricava il consigliato secondo la priorità e le alternative
+(economico, veloce, migliore, locale), con spareggi fissi per costo, velocità e
+ID. L'incertezza su compito o complessità alza il livello richiesto invece di
+bloccare. Bloccano solo injection, intento malevolo o evidenze mancanti su di
+essi (`DeterministicPolicy.safety_reasons(include_risk=False)`). Il catalogo è
+YAML validato all'avvio; `CatalogService` aggiunge i modelli rilevati da Ollama. MIT per il codice originale. OmniRoute risolve il gateway per
 modelli downstream, ma non sostituisce la distribuzione decisionale tipizzata
 né la policy di questo slice: non viene aggiunto senza necessità.
 

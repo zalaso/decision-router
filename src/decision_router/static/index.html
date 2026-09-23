@@ -27,6 +27,7 @@
 
   <nav class="tabs" role="tablist">
     <button type="button" role="tab" data-tab="route" data-i18n="tab.route"></button>
+    <button type="button" role="tab" data-tab="models" data-i18n="tab.models"></button>
     <button type="button" role="tab" data-tab="decide" data-i18n="tab.decide"></button>
     <button type="button" role="tab" data-tab="how" data-i18n="tab.how"></button>
     <button type="button" role="tab" data-tab="config" data-i18n="tab.config"></button>
@@ -105,6 +106,57 @@
       </div>
     </section>
 
+    <!-- MODEL RECOMMENDATION -->
+    <section class="panel-grid" data-panel="models" role="tabpanel" hidden>
+      <div class="col-input">
+        <form id="models-form" class="card" novalidate>
+          <label class="field-label" for="models-prompt" data-i18n="models.prompt"></label>
+          <textarea id="models-prompt" rows="5" maxlength="32000" data-i18n-placeholder="models.placeholder"></textarea>
+          <div class="examples">
+            <span class="examples-label" data-i18n="route.examples"></span>
+            <div class="chips" id="models-examples"></div>
+          </div>
+
+          <div class="field-label spaced" id="priority-label" data-i18n="models.priority"></div>
+          <div class="segmented" id="priority" role="radiogroup" aria-labelledby="priority-label">
+            <button type="button" role="radio" data-priority="balanced" data-i18n="prio.balanced"></button>
+            <button type="button" role="radio" data-priority="economy" data-i18n="prio.economy"></button>
+            <button type="button" role="radio" data-priority="speed" data-i18n="prio.speed"></button>
+            <button type="button" role="radio" data-priority="quality" data-i18n="prio.quality"></button>
+          </div>
+          <p class="hint" id="priority-hint"></p>
+          <label class="check-line"><input type="checkbox" id="local-only"> <span data-i18n="models.localOnly"></span></label>
+
+          <details class="disclosure" id="mymodels-disclosure">
+            <summary><span data-i18n="models.mine"></span> <span class="count" id="mymodels-count"></span></summary>
+            <p class="hint" data-i18n="models.mineHint"></p>
+            <div id="model-groups" class="mgroups"></div>
+            <div class="row-actions">
+              <span class="hint" id="ollama-status"></span>
+              <button type="button" class="btn btn-quiet btn-small" id="ollama-rescan" data-i18n="models.rescan"></button>
+            </div>
+          </details>
+
+          <p class="form-error" id="models-error" role="alert" hidden></p>
+          <div class="submit-row">
+            <button type="submit" class="btn btn-primary" id="models-submit" data-i18n="models.submit"></button>
+            <span class="kbd-hint">Ctrl + Enter</span>
+          </div>
+        </form>
+      </div>
+      <div class="col-output" id="models-output" aria-live="polite">
+        <div class="card empty">
+          <h2 data-i18n="models.emptyTitle"></h2>
+          <ol class="empty-steps">
+            <li data-i18n="models.empty1"></li>
+            <li data-i18n="models.empty2"></li>
+            <li data-i18n="models.empty3"></li>
+          </ol>
+          <p class="hint" data-i18n="models.emptyNote"></p>
+        </div>
+      </div>
+    </section>
+
     <!-- CUSTOM DECISION -->
     <section class="panel-grid" data-panel="decide" role="tabpanel" hidden>
       <div class="col-input">
@@ -155,6 +207,13 @@
           <li><span class="step-n">4</span><h3 data-i18n="how.s4t"></h3><p data-i18n="how.s4"></p></li>
         </ol>
         <p class="callout" data-i18n="how.never"></p>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="how.modelTitle"></h2>
+        <p data-i18n="how.model1"></p>
+        <p data-i18n="how.model2"></p>
+        <p class="hint" data-i18n="how.model3"></p>
       </div>
 
       <div class="card">
