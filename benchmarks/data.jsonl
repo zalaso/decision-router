@@ -1,0 +1,16 @@
+{"prompt":"Write Python code to parse a CSV file","expected":"coding_agent"}
+{"prompt":"Fix a software bug and add a regression test","expected":"coding_agent"}
+{"prompt":"Research sources and verify facts about ocean currents","expected":"research_agent"}
+{"prompt":"Search papers on compiler optimization","expected":"research_agent"}
+{"prompt":"Navigate a browser and click the next page","expected":"browser_agent"}
+{"prompt":"Fill web forms with the provided test data","expected":"browser_agent"}
+{"prompt":"Solve a math problem using logical reasoning","expected":"reasoning_agent"}
+{"prompt":"Reason about complex tradeoffs in a distributed system","expected":"reasoning_agent"}
+{"prompt":"Answer simple questions and greetings","expected":"fast_generalist"}
+{"prompt":"Summarize this short greeting","expected":"fast_generalist"}
+{"prompt":"Human review for an ambiguous request","expected":"human_review"}
+{"prompt":"Scrivi una funzione Python per ordinare una lista","expected":"coding_agent"}
+{"prompt":"Cerca fonti scientifiche sulla fotosintesi","expected":"research_agent"}
+{"prompt":"Apri il browser e compila il modulo di prova","expected":"browser_agent"}
+{"prompt":"Risolvi questo problema di logica e matematica","expected":"reasoning_agent"}
+{"prompt":"Saluta e rispondi a una domanda semplice","expected":"fast_generalist"}

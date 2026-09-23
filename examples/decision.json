@@ -1,0 +1,17 @@
+{
+  "prompt": "Please fix this Python bug and add a regression test.",
+  "context": "The user is working in their own repository.",
+  "questions": [
+    {
+      "kind": "choice", "id": "route", "instructions": "Which agent is best suited?",
+      "candidates": [
+        {"id": "coding_agent", "description": "Write code and debug software."},
+        {"id": "research_agent", "description": "Research and verify sources."},
+        {"id": "human_review", "description": "Review an unsafe or ambiguous request."}
+      ]
+    },
+    {"kind": "boolean", "id": "needs_code", "instructions": "The request requires programming."},
+    {"kind": "score", "id": "complexity", "instructions": "How complex is the request?",
+     "levels": ["Simple", "Moderate", "Complex"]}
+  ]
+}

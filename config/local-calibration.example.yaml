@@ -1,0 +1,12 @@
+# Illustration of the per-question mapping. These numbers are NOT calibrated.
+mode: local
+local_backend: nli
+local_model: MoritzLaurer/mDeBERTa-v3-base-mnli-xnli
+local_revision: 8adb042d524ecd5c26d3e3ba0e3fbcf7e2d0864c
+local_files_only: true
+temperature: 1.0
+temperature_by_question:
+  route: 1.0
+  injection: 1.0
+  malicious: 1.0
+  risk: 1.0

@@ -1,0 +1,11 @@
+# Development only: fake synthetic probabilities. No cloud calls.
+mode: local
+local_backend: fake
+timeout_s: 5
+local_accept_confidence: 0.80
+review_below_confidence: 0.55
+safety_min_confidence: 0.80
+risk_threshold: 0.30
+injection_threshold: 0.30
+malicious_threshold: 0.30
+shadow_primary: local

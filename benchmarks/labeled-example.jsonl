@@ -1,0 +1,4 @@
+{"sample_id":"demo-01","split":"calibration","model":"example-nli","revision":"example","question_id":"route","kind":"choice","expected":"coding_agent","probabilities":{"coding_agent":0.70,"research_agent":0.30}}
+{"sample_id":"demo-02","split":"calibration","model":"example-nli","revision":"example","question_id":"route","kind":"choice","expected":"research_agent","probabilities":{"coding_agent":0.35,"research_agent":0.65}}
+{"sample_id":"demo-03","split":"test","model":"example-nli","revision":"example","question_id":"route","kind":"choice","expected":"coding_agent","probabilities":{"coding_agent":0.60,"research_agent":0.40}}
+{"sample_id":"demo-04","split":"test","model":"example-nli","revision":"example","question_id":"route","kind":"choice","expected":"research_agent","probabilities":{"coding_agent":0.55,"research_agent":0.45}}

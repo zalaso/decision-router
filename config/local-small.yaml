@@ -1,0 +1,7 @@
+mode: local
+local_backend: nli
+local_model: MoritzLaurer/xtremedistil-l6-h256-zeroshot-v1.1-all-33
+local_revision: c07f66d9cbf781191bee66edfe8ad7856f045781
+local_files_only: true
+timeout_s: 5
+temperature: 1.0
