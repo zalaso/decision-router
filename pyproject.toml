@@ -42,7 +42,7 @@ strict = true
 files = ["src"]
 
 [[tool.mypy.overrides]]
-module = ["transformers.*", "torch.*"]
+module = ["transformers.*", "torch.*", "openjev.*"]
 ignore_missing_imports = true
 follow_imports = "skip"
 

@@ -27,9 +27,15 @@ class _ConnectionLike(Protocol):
     def close(self) -> None: ...
 
 
+class _SyncProvider(Protocol):
+    def _decide_sync(self, request: DecisionRequest) -> ProviderResult: ...
+
+    def close(self) -> None: ...
+
+
 def _serve(
     connection: Connection,
-    backend: Literal["nli", "fake", "stall"],
+    backend: Literal["nli", "openjev", "fake", "stall"],
     model: str,
     revision: str,
     local_files_only: bool,
@@ -37,7 +43,7 @@ def _serve(
     temperature_by_question: dict[str, float],
     max_pairs: int,
 ) -> None:
-    provider = None
+    provider: _SyncProvider | None = None
     try:
         if backend == "nli":
             from decision_router.providers.local import LocalNliProvider
@@ -52,6 +58,17 @@ def _serve(
                 temperature_by_question=temperature_by_question,
                 max_pairs=max_pairs,
             )
+        elif backend == "openjev":
+            from decision_router.providers.openjev import OpenJevProvider
+
+            provider = OpenJevProvider(
+                model=model,
+                revision=revision,
+                local_files_only=local_files_only,
+                temperature=temperature,
+                max_pairs=max_pairs,
+            )
+            provider.load()
         connection.send_bytes(b"READY")
         while True:
             try:
@@ -99,7 +116,7 @@ class ProcessNliProvider:
         max_pairs: int,
         timeout_s: float,
         startup_timeout_s: float = 120,
-        _backend: Literal["nli", "fake", "stall"] = "nli",
+        _backend: Literal["nli", "openjev", "fake", "stall"] = "nli",
     ) -> None:
         self._model = model
         self._revision = revision

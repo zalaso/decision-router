@@ -39,6 +39,7 @@ async def runtime(settings: Settings) -> AsyncIterator[DecisionEngine]:
                     temperature=settings.temperature,
                     temperature_by_question=settings.temperature_by_question,
                     max_pairs=settings.local_max_pairs,
+                    _backend=settings.local_backend,
                 )
                 await nli.start()
                 local = nli

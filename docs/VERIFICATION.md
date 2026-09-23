@@ -10,13 +10,17 @@ Dipendenze risolte in `uv.lock`.
 
 ## Eseguito realmente
 
-- **75 test senza pesi passati**; i due test che richiedono il modello vengono
+- **83 test senza pesi passati**; i due test che richiedono il modello NLI vengono
   saltati per default. Copertura di Choice/Boolean/Score, adapter cloud mockato,
   NLI con scorer iniettato, fake, candidati dinamici, quattro modalità,
   soglie ai confini, timeout, errori malformati, shadow, policy fail-closed,
   protezione credenziali/log e configurazione. I test nuovi verificano il
   worker in processo separato, la sua terminazione su timeout/cancellazione,
   limiti HTTP/TLS gate e il report di calibrazione su split disgiunti.
+- Test del nuovo adapter GPT-AGI/OpenJev: mappatura dei candidati dinamici,
+  Choice/Noul/Score con la libreria upstream e il suo mock, normalizzazione
+  dell'arrotondamento, limiti input e rifiuto di risposte malformate o
+  collisioni di primo token.
 - **2 test aggiuntivi con mDeBERTa reale passati**, in modalità offline: tutte
   e tre le primitive, scelta del candidato coding su un input semplice e
   rifiuto di input oltre la finestra senza troncamento.
@@ -34,6 +38,16 @@ Dipendenze risolte in `uv.lock`.
   e astensione della policy. Export JSONL delle distribuzioni per 2 esempi e
   fitter su split 1/1 riusciti. Il report segnala campione insufficiente e
   `production_ready: false`; il valore stimato non è stato applicato.
+- GPT-AGI/OpenJev installato dal commit `0e7bb990211df139da13dc67aa2a7aceca311af7`;
+  checkpoint Qwen2.5-0.5B-Instruct `7ae557604adf67be50417f59c2c2f167def9a775`
+  scaricato e verificato con SHA-256
+  `fdf756fa7fcbe7404d5c60e26bff1a0c8b8aa1f72ced49e7dd0210fe288fb7fe`.
+  La CLI offline ha eseguito realmente tutte e quattro le domande del router
+  attraverso `openjev_hf` nel processo figlio. Su “Write Python code” ha
+  selezionato `human_review` con confidence del route `0,0785`, durata della
+  decisione circa 16,6 s e review richiesta. È prova di funzionamento
+  meccanico, **non** di qualità del routing; il risultato è peggiore del NLI
+  primario su questo esempio.
 - `scripts/check_shadow.py` eseguito senza `TYPESAFE_API_KEY`: ha restituito
   `not_run` senza inviare richieste al cloud.
 - Wheel e sdist `0.1.0` costruiti in locale. In CI, su Python 3.12 e 3.14,

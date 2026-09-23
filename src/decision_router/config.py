@@ -17,7 +17,7 @@ Temperature = Annotated[float, Field(gt=0, le=100, allow_inf_nan=False)]
 
 class Settings(Model):
     mode: Literal["cloud", "local", "auto", "shadow"] = "local"
-    local_backend: Literal["fake", "nli"] = "fake"
+    local_backend: Literal["fake", "nli", "openjev"] = "fake"
     shadow_primary: Literal["local", "cloud"] = "local"
     timeout_s: float = Field(default=5.0, gt=0, le=300)
     local_startup_timeout_s: float = Field(default=120.0, gt=0, le=600)
@@ -46,6 +46,8 @@ class Settings(Model):
             raise ValueError("review threshold must not exceed acceptance threshold")
         if self.require_https and not self.api_token.get_secret_value():
             raise ValueError("HTTPS exposure requires an API token")
+        if self.local_backend == "openjev" and self.temperature_by_question:
+            raise ValueError("OpenJev supports one temperature for the whole request")
         return self
 
 

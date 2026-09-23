@@ -66,6 +66,15 @@ Nel locale le descrizioni di Choice/Score devono contenere l'intero criterio:
 il classificatore NLI non esegue le istruzioni generiche di queste domande.
 La risposta lo segnala nei warning; Jev Cloud usa anche `instructions`.
 
+### OpenJev locale opzionale
+
+È disponibile anche un adapter per **GPT-AGI/OpenJev** con il checkpoint
+pubblico Qwen2.5-0.5B-Instruct. È un wrapper Jev-like realmente distinto
+dal backend NLI, selezionabile con `config/openjev.yaml`, ma non è il default.
+Installazione alla revisione fissata, download dei pesi e limiti del confronto
+dei primi token sono spiegati in [OPENJEV](docs/OPENJEV.md). L'installazione
+base funziona senza questa dipendenza opzionale.
+
 ## Cloud, auto e shadow
 
 Esportare `TYPESAFE_API_KEY` nella shell per le API ufficiali TypeSafe.

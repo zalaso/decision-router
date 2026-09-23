@@ -38,7 +38,7 @@ Avvio predefinito su `127.0.0.1`. Token Bearer opzionale via `ROUTER_API_TOKEN`
 con confronto a tempo costante. Il body è limitato a 256 KiB anche con chunked
 transfer; lunghezze, numero di domande e candidati sono limitati dal dominio.
 Il locale rifiuta più di 64 coppie NLI o oltre 512 token/coppia senza troncare.
-Il worker NLI vive in un processo separato, con una sola inferenza alla volta:
+Il worker NLI/OpenJev vive in un processo separato, con una sola inferenza alla volta:
 su timeout/cancellazione viene terminato. Modelli scaricati solo su scelta
 esplicita, revisioni fissate, safetensors, nessun codice remoto. La middleware
 limita richieste e concorrenza **per processo server**, inclusi i tentativi
@@ -62,3 +62,6 @@ escluso nel Boolean. La temperatura è un parametro, non un modello calibrato.
 Separare training/calibration/test, misurare rischio residuo sui casi accettati,
 valutare lingue, distribuzioni fuori dominio e prompt injection avversaria.
 Il fake non va impiegato per classificare sicurezza in un sistema reale.
+Il wrapper OpenJev legge solo il primo token per etichetta; l'adapter rifiuta
+collisioni fra etichette, ma ciò non valida la qualità delle probabilità o la
+resistenza a prompt injection. Vedere `OPENJEV.md`.
