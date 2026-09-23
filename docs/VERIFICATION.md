@@ -5,7 +5,8 @@ Transformers **4.57.6**. CUDA non disponibile. Il progetto mantiene Python
 >=3.12 come requisito: il Python 3.12 scaricato è stato bloccato dalla policy
 Windows di controllo applicazioni (errore 4551), quindi non viene dichiarata
 un'esecuzione locale su 3.12. La matrice GitHub Actions 3.12/3.14 è stata
-eseguita con successo sul commit `9837073`: [run](https://github.com/zalaso/decision-router/actions/runs/35830339061).
+eseguita con successo anche dopo l'integrazione OpenJev sul commit `18f675d`:
+[run](https://github.com/zalaso/decision-router/actions/runs/35833850867).
 Dipendenze risolte in `uv.lock`.
 
 ## Eseguito realmente
