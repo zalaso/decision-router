@@ -2,7 +2,7 @@
 
 L'interfaccia pubblica per decidere è `await DecisionEngine.decide(DecisionRequest)`.
 `DecisionProvider` ha lo stesso metodo e permette di sostituire Jev Cloud,
-NLI locale, GPT-AGI/OpenJev locale, Rizzo Flow locale e fake.
+NLI locale, GPT-AGI/OpenJev locale, Rizzo Flow locale, un LLM Ollama locale e fake.
 Il composition root `runtime.py` costruisce le dipendenze; gli adapter e
 l'orchestratore le ricevono. Il dominio non importa SDK TypeSafe né Transformers.
 
@@ -12,6 +12,7 @@ flowchart LR
     Engine --> Fake[Fake deterministico]
     Engine --> Local[NLI / OpenJev locale]
     Engine --> Rizzo[Rizzo Flow HTTP locale]
+    Engine --> Ollama[LLM Ollama locale]
     Engine --> Cloud[Adapter HTTP Jev]
     Engine --> Audit[Log strutturato sanitizzato]
     Engine --> Policy[Policy deterministica del router]

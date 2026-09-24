@@ -33,7 +33,7 @@ class Status(Model):
 
     version: str
     mode: Literal["cloud", "local", "auto", "shadow"]
-    local_backend: Literal["fake", "nli", "openjev", "rizzo_flow"]
+    local_backend: Literal["fake", "nli", "openjev", "rizzo_flow", "ollama"]
     local_model: str | None
     shadow_primary: Literal["local", "cloud"]
     synthetic: bool
@@ -55,7 +55,9 @@ class Status(Model):
             version=__version__,
             mode=settings.mode,
             local_backend=settings.local_backend,
-            local_model=settings.local_model
+            local_model=settings.ollama_model
+            if uses_local and settings.local_backend == "ollama"
+            else settings.local_model
             if uses_local and settings.local_backend in ("nli", "openjev")
             else None,
             shadow_primary=settings.shadow_primary,

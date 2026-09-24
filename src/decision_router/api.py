@@ -21,7 +21,12 @@ from decision_router.dashboard import Status, mount_dashboard
 from decision_router.domain import DecisionRequest, DecisionResult
 from decision_router.engine import DecisionEngine
 from decision_router.policy import DeterministicPolicy
-from decision_router.recommend import RecommendRequest, RecommendResult, recommend
+from decision_router.recommend import (
+    ClassificationCache,
+    RecommendRequest,
+    RecommendResult,
+    recommend,
+)
 from decision_router.routing import RouteRequest, RouteResult, route
 from decision_router.runtime import runtime
 
@@ -122,6 +127,7 @@ def create_app(
     )
     policy = DeterministicPolicy(settings)
     models = catalog or CatalogService(settings)
+    classifications = ClassificationCache()
 
     async def authenticate(authorization: str | None = Header(default=None)) -> None:
         token = settings.api_token.get_secret_value()
@@ -161,7 +167,7 @@ def create_app(
         dependencies=[Depends(authenticate)],
     )
     async def recommend_model(request: RecommendRequest) -> RecommendResult:
-        return await recommend(request, engine, policy, models)
+        return await recommend(request, engine, policy, models, classifications)
 
     if settings.dashboard:
         mount_dashboard(app)

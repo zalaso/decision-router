@@ -121,6 +121,9 @@ code, .mono { font-family: var(--mono); font-size: .88em; }
   font-size: .9rem; border: 1px solid color-mix(in srgb, var(--warn) 25%, transparent);
 }
 .notice strong { color: var(--warn); }
+.notice-extra { margin: 8px 0 0; }
+.notice-extra code { background: var(--surface); padding: 1px 6px; border-radius: 5px; }
+.loading-hint { display: block; font-size: .84rem; margin-top: 2px; }
 .notice-auth { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 25%, transparent); }
 .notice-auth strong { color: var(--accent); }
 .auth-form label { display: block; margin-bottom: .5rem; }

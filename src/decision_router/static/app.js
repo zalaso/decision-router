@@ -171,6 +171,13 @@
       "how.bNli": "Modello NLI multilingue mDeBERTa (circa 558 MB) o la variante piccola inglese (circa 26 MB). Gira su CPU, offline.",
       "how.bOpenjev": "Adapter opzionale GPT-AGI/OpenJev con Qwen2.5-0.5B-Instruct.",
       "how.bRizzo": "Servizio locale Rizzo Flow, compatibile con il formato HTTP Jev.",
+      "how.bOllama": "Un tuo modello Ollama (per esempio Qwen 2.5) usato come classificatore, con probabilità prese dai token. Offline e gratuito; su CPU richiede da decine di secondi a un minuto.",
+      "demo.ollamaTitle": "Hai Ollama attivo.",
+      "demo.ollamaBody": "Per classificare davvero le richieste (anche in italiano), riavvia con:",
+      "loading.local": "Con un modello locale su CPU può servire circa un minuto, di più al primo avvio.",
+      "loading.seconds": "{s} s",
+      "note.demo_classifier": "Risultato dimostrativo: il backend demo non capisce la richiesta, cerca solo parole chiave in inglese e stima sempre complessità bassa. Per consigli reali avvia con Ollama (config/ollama.yaml).",
+      "note.classification_reused": "Stessa richiesta di prima: ho riusato la classificazione, quindi il risultato è immediato.",
       "how.apiTitle": "Integrarlo nel tuo codice",
       "how.apiBody": "Tutto ciò che fa la dashboard passa da un'API HTTP: POST /v1/route per instradare, POST /v1/decisions per le decisioni personalizzate. È disponibile anche come libreria Python e da riga di comando. Ogni risultato qui ha il pulsante «Copia come curl».",
       "how.apiLink": "Apri la documentazione interattiva dell'API (OpenAPI) →",
@@ -180,7 +187,7 @@
       "config.value": "Valore",
       "config.env": "Variabile d'ambiente",
       "config.changeTitle": "Come cambiarla",
-      "config.changeBody": "Ferma il server (Ctrl+C) e riavvialo con un file YAML oppure con variabili d'ambiente. Esempio con il modello locale piccolo (dopo averlo scaricato, vedi README):",
+      "config.changeBody": "Ferma il server (Ctrl+C) e riavvialo con un file YAML oppure con variabili d'ambiente. Esempio con un tuo LLM locale via Ollama (prima: ollama pull qwen2.5:3b-instruct):",
       "config.readonly": "La configurazione non si modifica dal browser, di proposito: soglie e credenziali restano sotto il controllo di chi avvia il server.",
       "config.unavailable": "Configurazione non disponibile finché il server non risponde.",
       "cfg.mode": "Modalità di funzionamento",
@@ -231,7 +238,6 @@
       "models.taskLabel": "Tipo di compito",
       "models.complexityLabel": "Complessità",
       "models.safetyLabel": "Sicurezza",
-      "models.riskInfo": "Qui il rischio di esecuzione è solo informativo: scegliere un modello non esegue nulla.",
       "models.table": "I tuoi modelli per questo compito",
       "models.col.model": "Modello",
       "models.col.level": "Livello",
@@ -460,6 +466,13 @@
       "how.bNli": "Multilingual mDeBERTa NLI model (about 558 MB) or the small English variant (about 26 MB). Runs on CPU, offline.",
       "how.bOpenjev": "Optional GPT-AGI/OpenJev adapter with Qwen2.5-0.5B-Instruct.",
       "how.bRizzo": "Local Rizzo Flow service, compatible with the Jev HTTP format.",
+      "how.bOllama": "One of your Ollama models (for example Qwen 2.5) used as classifier, with probabilities from its tokens. Offline and free; on a CPU it takes from tens of seconds to a minute.",
+      "demo.ollamaTitle": "Ollama is running.",
+      "demo.ollamaBody": "To really classify requests (in any language), restart with:",
+      "loading.local": "With a local model on a CPU this can take about a minute, longer on the first run.",
+      "loading.seconds": "{s} s",
+      "note.demo_classifier": "Demo result: the demo backend does not understand the request; it only matches English keywords and always assumes low complexity. For real advice, start with Ollama (config/ollama.yaml).",
+      "note.classification_reused": "Same request as before: the classification was reused, so the result is instant.",
       "how.apiTitle": "Use it from your code",
       "how.apiBody": "Everything the dashboard does goes through an HTTP API: POST /v1/route to route, POST /v1/decisions for custom decisions. It is also available as a Python library and a command-line tool. Every result here has a “Copy as curl” button.",
       "how.apiLink": "Open the interactive API documentation (OpenAPI) →",
@@ -469,7 +482,7 @@
       "config.value": "Value",
       "config.env": "Environment variable",
       "config.changeTitle": "How to change it",
-      "config.changeBody": "Stop the server (Ctrl+C) and restart it with a YAML file or environment variables. Example with the small local model (after downloading it, see the README):",
+      "config.changeBody": "Stop the server (Ctrl+C) and restart it with a YAML file or environment variables. Example with your own local LLM via Ollama (first: ollama pull qwen2.5:3b-instruct):",
       "config.readonly": "Configuration cannot be changed from the browser, on purpose: thresholds and credentials stay under the control of whoever starts the server.",
       "config.unavailable": "Configuration unavailable until the server responds.",
       "cfg.mode": "Operating mode",
@@ -520,7 +533,6 @@
       "models.taskLabel": "Task type",
       "models.complexityLabel": "Complexity",
       "models.safetyLabel": "Safety",
-      "models.riskInfo": "Execution risk is informational here: choosing a model runs nothing.",
       "models.table": "Your models for this task",
       "models.col.model": "Model",
       "models.col.level": "Level",
@@ -802,7 +814,17 @@
   }
 
   function loadingCard() {
-    return el("div", { class: "card loading" }, el("span", { class: "spinner" }), el("span", { text: t("loading") }));
+    const seconds = el("span", { class: "tag", text: t("loading.seconds", { s: 0 }) });
+    const started = Date.now();
+    const timer = setInterval(() => {
+      if (!seconds.isConnected) { clearInterval(timer); return; }
+      seconds.textContent = t("loading.seconds", { s: Math.round((Date.now() - started) / 1000) });
+    }, 1000);
+    const slow = state.status?.local_backend === "ollama" || state.status?.local_backend === "nli";
+    return el("div", { class: "card loading" },
+      el("span", { class: "spinner" }),
+      el("span", {}, t("loading"), slow ? el("span", { class: "hint loading-hint", text: t("loading.local") }) : null),
+      seconds);
   }
 
   async function submitRoute(event) {
@@ -1215,6 +1237,7 @@
     saveSelection();
     if (!saved) $("#mymodels-disclosure").open = true;
     renderModelGroups();
+    $("#demo-ollama").hidden = !(state.status?.synthetic && res.data.ollama.reachable);
   }
 
   const modelById = (id) => state.catalog?.models.find((m) => m.id === id)
@@ -1398,9 +1421,7 @@
         el("div", { class: "subhead", text: t("models.safetyLabel") }),
         el("div", { class: "checks" },
           safetyCheck("injection", decision.answers.injection, s.injection_threshold ?? 0.3, min),
-          safetyCheck("malicious", decision.answers.malicious, s.malicious_threshold ?? 0.3, min),
-          safetyCheck("risk", decision.answers.risk, s.risk_threshold ?? 0.3, min)),
-        el("p", { class: "hint", text: t("models.riskInfo") })));
+          safetyCheck("malicious", decision.answers.malicious, s.malicious_threshold ?? 0.3, min))));
     }
 
     if (data.candidates.length) {
@@ -1462,16 +1483,16 @@
         return el("tr", {},
           el("td", {}, el("div", { text: t(`cfg.${key}`) }), el("div", { class: "setting-desc mono", text: key })),
           el("td", { class: "val", text: String(value) }),
-          el("td", { class: "env", text: env }));
+          el("td", { class: "env", text: key === "local_model" && s.local_backend === "ollama" ? "ROUTER_OLLAMA_MODEL" : env }));
       }));
     }
     $("#config-example").textContent = [
       "# Windows (PowerShell)",
-      "decision-router --config config/local-small.yaml serve --open",
+      "decision-router --config config/ollama.yaml serve --open",
       "",
       "# " + (lang === "it" ? "oppure con variabili d'ambiente" : "or with environment variables"),
       '$env:ROUTER_MODE = "local"',
-      '$env:ROUTER_LOCAL_BACKEND = "nli"',
+      '$env:ROUTER_LOCAL_BACKEND = "ollama"',
       "decision-router serve --open",
     ].join("\n");
   }

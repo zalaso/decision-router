@@ -5,6 +5,8 @@ safety); a deterministic ranking over the models the user marked as available tu
 those answers into one recommended model plus labelled alternatives.
 """
 
+import hashlib
+from collections import OrderedDict
 from typing import Literal
 
 from pydantic import Field
@@ -29,15 +31,19 @@ Priority = Literal["balanced", "economy", "speed", "quality"]
 
 # Skill (0-10) a model needs for a task of each complexity level: simple, moderate, complex.
 REQUIRED_SKILL = (4, 6, 8)
-# "Balanced" asks for this much headroom above the minimum, at the lowest cost.
+# "Balanced" asks for this much headroom above the minimum, at the lowest cost, but never
+# more than BALANCED_CEILING: demanding a 10/10 flagship is what "quality" is for.
 BALANCED_MARGIN = 2
+BALANCED_CEILING = 9
 # Below this confidence the router plans for the harder reading of the request.
 UNCERTAIN_BELOW = 0.6
 
 TASK_DESCRIPTIONS: dict[Task, str] = {
-    "code": "writing, reviewing or debugging software code, scripts or programming",
+    "code": "building software such as apps, games or websites, or writing, reviewing or "
+    "debugging code, scripts or programs",
     "reasoning": "math, logic puzzles, planning or complex analytical reasoning",
-    "writing": "writing or editing text such as emails, articles, stories or translations",
+    "writing": "writing or editing prose such as emails, articles, stories or translations "
+    "(not software)",
     "research": "researching a topic, finding sources, comparing facts or summarizing documents",
     "chat": "casual conversation, greetings like hello, or simple quick questions",
     "vision": "analyzing, describing or reading images, photos, screenshots or charts",
@@ -57,11 +63,43 @@ def recommend_questions() -> list[Question]:
             levels=[
                 "Simple: a short, routine request that any basic assistant can handle.",
                 "Moderate: several steps or some expertise, but a well-defined task.",
-                "Complex: hard, long or ambiguous work needing expert-level reasoning.",
+                "Complex: a large project such as a full app or game, or hard, long "
+                "or ambiguous work needing expert-level skills.",
             ],
         ),
-        *risk_questions(),
+        # Execution risk is left out: choosing a model runs nothing, and on a local LLM
+        # every extra question costs seconds.
+        *(q for q in risk_questions() if q.id != "risk"),
     ]
+
+
+class ClassificationCache:
+    """Recent classifications by request text, so changing priority or models is instant.
+
+    In memory only, bounded, and only successful classifications are kept.
+    """
+
+    def __init__(self, size: int = 64) -> None:
+        self._size = size
+        self._items: OrderedDict[str, DecisionResult] = OrderedDict()
+
+    @staticmethod
+    def _key(prompt: str, context: str) -> str:
+        return hashlib.sha256(f"{prompt}\0{context}".encode()).hexdigest()
+
+    def get(self, prompt: str, context: str) -> DecisionResult | None:
+        key = self._key(prompt, context)
+        if key in self._items:
+            self._items.move_to_end(key)
+            return self._items[key]
+        return None
+
+    def put(self, prompt: str, context: str, result: DecisionResult) -> None:
+        if result.decision is None:
+            return
+        self._items[self._key(prompt, context)] = result
+        while len(self._items) > self._size:
+            self._items.popitem(last=False)
 
 
 class RecommendRequest(Model):
@@ -148,7 +186,7 @@ def rank(
     best = min(usable, key=lambda m: (-skill(m), m.cost, -m.speed, m.id))
     economy = min(fits, key=lambda m: (m.cost, -skill(m), -m.speed, m.id)) if fits else best
     fastest = min(fits, key=lambda m: (-m.speed, m.cost, -skill(m), m.id)) if fits else best
-    margin = [m for m in fits if skill(m) >= min(required + BALANCED_MARGIN, 10)]
+    margin = [m for m in fits if skill(m) >= min(required + BALANCED_MARGIN, BALANCED_CEILING)]
     balanced = min(margin, key=lambda m: (m.cost, -m.speed, -skill(m), m.id)) if margin else economy
     choices: dict[Strategy, ModelProfile] = {
         "balanced": balanced,
@@ -174,14 +212,21 @@ async def recommend(
     engine: DecisionEngine,
     policy: DeterministicPolicy,
     catalog: CatalogService,
+    cache: ClassificationCache | None = None,
 ) -> RecommendResult:
-    evaluation = await engine.decide(
-        DecisionRequest(
-            prompt=request.prompt, context=request.context, questions=recommend_questions()
-        )
-    )
-    view = await catalog.view()
     notes: list[str] = []
+    evaluation = cache.get(request.prompt, request.context) if cache else None
+    if evaluation is not None:
+        notes.append("classification_reused")
+    else:
+        evaluation = await engine.decide(
+            DecisionRequest(
+                prompt=request.prompt, context=request.context, questions=recommend_questions()
+            )
+        )
+        if cache:
+            cache.put(request.prompt, request.context, evaluation)
+    view = await catalog.view()
     profiles = {m.id: m for m in view.models}
     # Default: every cloud model, plus local models only when Ollama reports them installed.
     wanted = (
@@ -218,6 +263,8 @@ async def recommend(
             notes.append("complexity_uncertain")
     if task_uncertain:
         notes.append("task_uncertain")
+    if decision is not None and decision.provider == "fake":
+        notes.append("demo_classifier")
     if decision is not None and (task is None or complexity is None):
         reasons.append("decision_unavailable_or_uncertain")
 

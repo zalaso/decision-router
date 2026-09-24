@@ -42,7 +42,7 @@ def validate_rizzo_origin(value: str, service: str = "Rizzo Flow") -> str:
 
 class Settings(Model):
     mode: Literal["cloud", "local", "auto", "shadow"] = "local"
-    local_backend: Literal["fake", "nli", "openjev", "rizzo_flow"] = "fake"
+    local_backend: Literal["fake", "nli", "openjev", "rizzo_flow", "ollama"] = "fake"
     shadow_primary: Literal["local", "cloud"] = "local"
     timeout_s: float = Field(default=5.0, gt=0, le=300)
     local_startup_timeout_s: float = Field(default=120.0, gt=0, le=600)
@@ -68,6 +68,8 @@ class Settings(Model):
     model_catalog: str | None = Field(default=None, min_length=1, max_length=1024)
     ollama_detect: bool = True
     ollama_base_url: str = "http://127.0.0.1:11434"
+    # Local LLM used as classifier by the "ollama" backend (must support logprobs).
+    ollama_model: str = Field(default="qwen2.5:3b-instruct", min_length=1, max_length=200)
     temperature: Temperature = 1.0
     temperature_by_question: dict[str, Temperature] = Field(default_factory=dict)
     typesafe_api_key: SecretStr = SecretStr("")

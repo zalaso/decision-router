@@ -1,0 +1,9 @@
+# Local LLM classifier through Ollama. First: ollama pull qwen2.5:3b-instruct
+# The 3B model fits laptops with 8 GB of RAM; with 16 GB or a GPU, qwen2.5:7b-instruct
+# (or a larger model) judges complexity more reliably. Any model that follows
+# instructions works; Ollama must return logprobs (recent versions do).
+# On CPU the first request also loads the model: allow a generous timeout.
+mode: local
+local_backend: ollama
+ollama_model: qwen2.5:3b-instruct
+timeout_s: 180

@@ -91,7 +91,7 @@ flowchart LR
     R["Request<br/>+ context<br/>+ candidate agents"] --> Q["4 typed questions<br/>which agent? · injection?<br/>malicious? · how risky?"]
     Q --> P{"Provider"}
     P -->|demo| F[fake]
-    P -->|local| L["NLI · OpenJev · Rizzo Flow"]
+    P -->|local| L["Ollama · NLI · OpenJev · Rizzo Flow"]
     P -->|cloud| C[Jev TypeSafe]
     F & L & C --> D["Probability<br/>distributions"]
     D --> POL["Deterministic policy<br/>(fixed rules, not AI)"]
@@ -131,6 +131,7 @@ becomes a permission. Whoever integrates the router decides what to run.
 | `nli` | Multilingual mDeBERTa NLI, CPU, offline. Small English variant in `config/local-small.yaml`. | ~558 MB / ~26 MB |
 | `openjev` | Optional GPT-AGI/OpenJev adapter with Qwen2.5-0.5B-Instruct. | ~1 GB |
 | `rizzo_flow` | Local [Rizzo Flow](https://github.com/Rizzo-AI-Academy/rizzo-flow) service, Jev-compatible HTTP format. | managed by Rizzo |
+| `ollama` | One of your local LLMs via [Ollama](https://ollama.com) (for example Qwen 2.5) as classifier, with probabilities from its tokens. **Recommended for choosing a model.** | ~2 GB (3B) |
 
 ## The dashboard
 
@@ -172,6 +173,13 @@ To expose only the API without the UI: `ROUTER_DASHBOARD=false`.
 
 Describe what you need to do and the router tells you **which model to use
 among those you have**: one recommended model and, below it, the alternatives.
+
+> **It needs a real classifier.** With the demo backend (`fake`) the result is
+> only illustrative: it matches English keywords and always assumes low
+> complexity, so for "build a game similar to Call of Duty" it would suggest a
+> cheap model. For real advice, in any language, start with a local LLM:
+> `start.bat --config config\ollama.yaml` (see
+> [Your own LLM with Ollama](#your-own-llm-with-ollama)).
 
 | Choice | How it is decided |
 |---|---|
@@ -337,6 +345,31 @@ checkpoint, selected with `config/openjev.yaml`. It is not the default and not
 a replica of TypeSafe Jev. Pinned installation and limitations in
 [OPENJEV](docs/OPENJEV.md) (currently in Italian).
 
+### Your own LLM with Ollama
+
+The recommended way to choose models: an LLM running on your computer acts as
+the classifier. It understands other languages, tells a chat from a complex
+project, and is free and offline.
+
+```powershell
+ollama pull qwen2.5:3b-instruct
+.venv\Scripts\decision-router --config config/ollama.yaml serve --open
+```
+
+With the start scripts: `start.bat --config config\ollama.yaml` (or
+`./start.sh --config config/ollama.yaml`). The router asks the model one
+question at a time (task type, complexity, injection, malicious intent) and
+reads the answer probabilities from the generated tokens: they are real model
+outputs, not calibrated probabilities. Ollama must return `logprobs` (recent
+versions do).
+
+**How slow it is.** On a laptop without a GPU (Ryzen 3 2200U, 8 GB of RAM)
+Qwen 2.5 3B takes about 30-40 seconds per request, more on the first run while
+the model loads. The same request with another priority or model selection is
+instant, because the classification is reused. With 16 GB of RAM or a GPU you
+can use a larger model that judges complexity better:
+`ROUTER_OLLAMA_MODEL=qwen2.5:7b-instruct` (or edit `config/ollama.yaml`).
+
 ### Local Rizzo Flow (optional)
 
 Start [Rizzo Flow](https://github.com/Rizzo-AI-Academy/rizzo-flow) in a
@@ -374,7 +407,7 @@ not loaded automatically.
 | Variable | Default | Meaning |
 |---|---|---|
 | `ROUTER_MODE` | `local` | `local`, `cloud`, `auto`, `shadow` |
-| `ROUTER_LOCAL_BACKEND` | `fake` | `fake`, `nli`, `openjev`, `rizzo_flow` |
+| `ROUTER_LOCAL_BACKEND` | `fake` | `fake`, `nli`, `openjev`, `rizzo_flow`, `ollama` |
 | `ROUTER_TIMEOUT_S` | `5` | Timeout per single attempt |
 | `ROUTER_LOCAL_ACCEPT_CONFIDENCE` | `0.80` | Above: the local result is accepted |
 | `ROUTER_REVIEW_BELOW_CONFIDENCE` | `0.55` | Below: human review |
@@ -384,6 +417,7 @@ not loaded automatically.
 | `ROUTER_MODEL_CATALOG` | empty | Path to a custom YAML model catalog |
 | `ROUTER_OLLAMA_DETECT` | `true` | Detect models downloaded with Ollama |
 | `ROUTER_OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Ollama address (loopback only) |
+| `ROUTER_OLLAMA_MODEL` | `qwen2.5:3b-instruct` | LLM used by the `ollama` backend |
 | `ROUTER_API_TOKEN` | empty | If set, requires `Authorization: Bearer <token>` |
 | `TYPESAFE_API_KEY` | empty | Key for the Jev cloud |
 

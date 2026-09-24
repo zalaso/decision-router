@@ -1,5 +1,6 @@
 """Composition root: the only place that constructs external dependencies."""
 
+import asyncio
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -13,6 +14,7 @@ from decision_router.engine import DecisionEngine
 from decision_router.providers.base import DecisionProvider
 from decision_router.providers.fake import FakeProvider
 from decision_router.providers.jev import JevCloudProvider
+from decision_router.providers.ollama import OllamaProvider
 from decision_router.providers.process import ProcessNliProvider
 from decision_router.providers.rizzo_flow import RizzoFlowProvider
 
@@ -29,7 +31,7 @@ async def runtime(settings: Settings) -> AsyncIterator[DecisionEngine]:
     if settings.mode != "cloud":
         if settings.local_backend == "fake":
             local = FakeProvider()
-        elif settings.local_backend != "rizzo_flow":
+        elif settings.local_backend == "nli" or settings.local_backend == "openjev":
             try:
                 nli = ProcessNliProvider(
                     model=settings.local_model,
@@ -51,8 +53,16 @@ async def runtime(settings: Settings) -> AsyncIterator[DecisionEngine]:
                     nli.close()
                     nli = None
                 local = _UnavailableLocal()
+    warm_up: asyncio.Task[None] | None = None
     try:
         async with httpx.AsyncClient(timeout=settings.timeout_s, trust_env=False) as client:
+            if settings.mode != "cloud" and settings.local_backend == "ollama":
+                ollama = OllamaProvider(
+                    client, base_url=settings.ollama_base_url, model=settings.ollama_model
+                )
+                # Loading a model from disk can take a minute on CPU: start it now.
+                warm_up = asyncio.create_task(ollama.warm_up())
+                local = ollama
             if settings.mode != "cloud" and settings.local_backend == "rizzo_flow":
                 local = RizzoFlowProvider(
                     client,
@@ -75,5 +85,7 @@ async def runtime(settings: Settings) -> AsyncIterator[DecisionEngine]:
                 audit=JsonAudit(logging.getLogger("decision_router.audit")),
             )
     finally:
+        if warm_up is not None:
+            warm_up.cancel()
         if nli:
             nli.close()
