@@ -33,7 +33,8 @@ class ModelProfile(Model):
     price: tuple[float, float] | None = None  # USD per 1M tokens, input/output
     context_k: int | None = Field(default=None, ge=1, le=100000)
     size_gb: float | None = Field(default=None, ge=0)
-    cost: int = Field(ge=0, le=5)
+    # Cost tier 0-5, only for cloud models without a price; prices rank more precisely.
+    cost: int | None = Field(default=None, ge=0, le=5)
     speed: int = Field(ge=1, le=5)
     skills: dict[Task, int]
     notes: str = Field(default="", max_length=500)
@@ -47,7 +48,22 @@ class ModelProfile(Model):
             raise ValueError("skills must rate every task from 0 to 10")
         if self.price is not None and min(self.price) < 0:
             raise ValueError("prices must not be negative")
+        if not self.local and self.price is None and self.cost is None:
+            raise ValueError("cloud models need a price or a cost tier")
         return self
+
+    @property
+    def relative_cost(self) -> float:
+        """Blended USD per 1M tokens (3 input : 1 output), 0 for local models."""
+        if self.local:
+            return 0.0
+        if self.price is not None:
+            return (3 * self.price[0] + self.price[1]) / 4
+        return TIER_PRICE[self.cost or 0]
+
+
+# Blended price assumed for each cost tier when a catalog entry has no price.
+TIER_PRICE = (0.0, 1.0, 4.0, 8.0, 12.0, 20.0)
 
 
 class Catalog(Model):
@@ -104,7 +120,7 @@ def estimated_profile(
         billions = float(size)
     except ValueError:
         billions = 7.0
-    base = 2 if billions < 5 else 3 if billions < 15 else 5 if billions < 40 else 6
+    base = 2 if billions < 5 else 4 if billions < 15 else 5 if billions < 40 else 6
     context = details.get("context_length")
     return ModelProfile(
         id="ollama-" + _slug(name),
@@ -114,7 +130,7 @@ def estimated_profile(
         local=True,
         context_k=max(1, int(context) // 1000) if isinstance(context, int) else None,
         cost=0,
-        speed=5 if billions < 5 else 4 if billions < 15 else 2,
+        speed=3 if billions < 5 else 2 if billions < 15 else 1,  # laptop CPU, see catalog.yaml
         skills={
             "code": base,
             "reasoning": base,

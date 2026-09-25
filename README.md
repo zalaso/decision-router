@@ -219,9 +219,19 @@ sono nel catalogo compaiono, con un profilo stimato in base alla dimensione.
 Contiene Claude (Fable 5.1, Opus 5.5, Opus 5, Sonnet 5, Haiku 4.5), OpenAI
 (GPT-6 Astra, Sol, Luna), Google (Gemini 3.1 Pro, 3.8 Flash) e modelli locali
 (Qwen, DeepSeek R1). Nomi, prezzi API, contesto e dimensioni vengono dalle
-pagine ufficiali (verificati il 23 settembre 2026). I **punteggi per compito sono
-stime**: copia il file, modificalo e indicalo con `ROUTER_MODEL_CATALOG` per
-usare i tuoi.
+pagine ufficiali (verificati il 23 settembre 2026). Il costo si ricava dal
+prezzo (3 token di input per 1 di output), quindi GPT-6 Luna risulta davvero più
+economica di Haiku; i modelli locali costano zero. I **punteggi per compito sono
+stime** su una scala spiegata nel file (4-5 va bene per richieste quotidiane, 8
+regge lavori complessi, 9-10 è il livello di punta): copia il file, modificalo e
+indicalo con `ROUTER_MODEL_CATALOG` per usare i tuoi.
+
+**Verificarlo sul tuo classificatore.** `benchmarks/recommend-labeled.jsonl`
+contiene 43 richieste in italiano e inglese con tipo, complessità e attacchi
+attesi; `python benchmarks/recommend_eval.py --config config/ollama.yaml` misura
+quante ne legge correttamente il tuo modello. I test in `tests/test_recommend.py`
+fissano invece il modello scelto per ogni scenario del catalogo (tutti i
+modelli, solo Claude, solo modelli locali).
 
 Dalla riga di comando:
 

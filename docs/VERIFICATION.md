@@ -89,6 +89,54 @@ $env:RUN_LOCAL_MODEL_TESTS = "1"
   configurazione, cambio lingua, viewport mobile 375 px senza scroll
   orizzontale, nessun errore in console. Non provata con modelli reali o cloud.
 
+## Taratura dei parametri di lettura e di scelta (25 settembre 2026)
+
+**Scelta del modello (regole fisse).** Il costo ora si ricava dal prezzo
+(3 token di input per 1 di output), invece di 6 livelli fissi che rendevano
+ugualmente economici GPT-6 Luna ($0,10/$0,50) e Claude Haiku ($1/$5). La scala
+dei punteggi è spiegata nel catalogo e i punteggi sono stati resi coerenti fra
+loro; le velocità dei modelli locali assumono una CPU da portatile. Diciassette test
+di scenario in `tests/test_recommend.py` fissano il modello scelto per ogni
+strategia con tutti i modelli, solo Claude o solo modelli locali: per esempio
+codice complesso → Opus 5.5 (Equilibrio), Sonnet 5 (Risparmio), Fable 5.1
+(Qualità); conversazione semplice → GPT-6 Luna, o Haiku con il solo Claude.
+Opus 5 non viene mai proposto (Opus 5.5 costa meno ed è migliore) e ai modelli
+locali senza vista non vengono mai date immagini.
+
+**Lettura della richiesta.** Nuovo insieme etichettato
+`benchmarks/recommend-labeled.jsonl` (43 richieste, per lo più in italiano: 37
+con tipo e complessità attesi, di cui 3 richieste di sicurezza innocue, e 6
+attacchi) e script `benchmarks/recommend_eval.py`. Misure con Qwen 2.5 3B su
+Ollama, stesso portatile:
+
+| Versione | Tipo di compito | Complessità | Sicurezza |
+|---|---|---|---|
+| Partenza (risposte a lettere, descrizioni brevi) | 30/37 | 25/37 | 43/43 |
+| Descrizioni con esempi, risposte a lettere | 30/37 | 29/37 | non misurata |
+| Risposte a parole, confini dei compiti ridefiniti | 35/36 | 35/36 | 38/42 |
+| Messaggio di sistema dedicato alle domande sì/no | invariato | invariato | 43/43 |
+
+- Il modello sopravvalutava la complessità ("descrivi questa immagine" →
+  complessa, una mail al capo → media): esempi concreti per ogni livello e
+  risposta con la parola ("Simple", "Moderate", "Complex") invece della lettera
+  portano la complessità a 35/37 nella prova dedicata.
+- Con le lettere il modello era instabile sul tipo di compito (la migrazione
+  Java finiva in "immagini"); con la parola ("code", "vision") i casi di
+  programmazione sono tutti corretti, ma "writing" assorbiva ogni domanda che
+  chiedeva un testo. Definire scrittura come "testo per qualcun altro" e
+  conversazione come "rispondere all'utente" porta il tipo di compito a 36/37
+  nella prova dedicata. Resta errato "spiegami in parole semplici l'inflazione"
+  (scrittura invece di conversazione): cambia solo il livello richiesto
+  all'interno della stessa complessità bassa.
+- Il messaggio di sistema pensato per le risposte a parole faceva mancare al 3B
+  tutti gli attacchi (DAN, richieste in italiano): le domande sì/no usano quindi
+  il messaggio precedente, riverificato a 43/43.
+- Nella misura completa una richiesta ("raccontami una barzelletta") è andata in
+  timeout dopo 827 s, compatibile con il PC in sospensione; nelle prove dedicate
+  è classificata correttamente (conversazione, semplice).
+- Tempi: 12-13 s per consiglio nella prova finale da riga di comando, 25-45 s
+  nelle misure lunghe con il PC sotto carico.
+
 ## Classificatore Ollama e revisione dei parametri (24 settembre 2026)
 
 Problema segnalato: "costruisci un gioco simile a call of duty" otteneva Gemini

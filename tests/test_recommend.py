@@ -119,7 +119,7 @@ def test_packaged_catalog_is_valid():
     assert {"claude-opus-5-5", "claude-sonnet-5", "gpt-6-astra", "gemini-3-8-flash"} <= ids
     opus = next(m for m in catalog.models if m.id == "claude-opus-5-5")
     assert opus.price == (4.0, 20.0) and opus.api_model == "claude-opus-5-5"
-    assert all(m.cost == 0 and m.price is None for m in catalog.models if m.local)
+    assert all(m.relative_cost == 0 and m.price is None for m in catalog.models if m.local)
 
 
 def test_invalid_catalog_and_ollama_url_are_rejected(tmp_path):
@@ -254,3 +254,127 @@ async def test_http_endpoints(engine):
         assert data["recommended"]["model"] in {"claude-haiku-4-5", "gpt-6-luna"}
         bad = await client.post("/v1/models/recommend", json={"prompt": "x", "priority": "cheap"})
         assert bad.status_code == 422
+
+
+# ---------------------------------------------------------------- packaged catalog scenarios
+CATALOG = {m.id: m for m in load_catalog(None).models}
+CLOUD = [i for i, m in CATALOG.items() if not m.local]
+CLAUDE = [i for i, m in CATALOG.items() if m.group == "claude"]
+MY_LOCAL = ["qwen2-5-7b", "qwen2-5-3b"]  # what a typical laptop has pulled
+REQUIRED = {"simple": 4, "moderate": 6, "complex": 8}
+
+
+def choices(available, task, level):
+    recommended, alternatives, _, notes = rank(
+        [CATALOG[i] for i in available], task, None, REQUIRED[level], "balanced"
+    )
+    options = [recommended, *alternatives] if recommended else []
+    return {o.strategy: o.model for o in options}, notes
+
+
+@pytest.mark.parametrize(
+    ("available", "task", "level", "expected"),
+    [
+        # Everything available: cheap models for easy work, stronger ones as it gets harder.
+        (
+            CLOUD + MY_LOCAL,
+            "chat",
+            "simple",
+            {
+                "balanced": "gpt-6-luna",
+                "economy": "qwen2-5-7b",
+                "speed": "gpt-6-luna",
+                "quality": "gemini-3-8-flash",
+                "local": "qwen2-5-7b",
+            },
+        ),
+        (
+            CLOUD + MY_LOCAL,
+            "code",
+            "simple",
+            {
+                "balanced": "gemini-3-8-flash",
+                "economy": "qwen2-5-7b",
+                "speed": "gpt-6-luna",
+                "quality": "claude-fable-5-1",
+            },
+        ),
+        (
+            CLOUD + MY_LOCAL,
+            "code",
+            "moderate",
+            {
+                "balanced": "claude-sonnet-5",
+                "economy": "gemini-3-8-flash",
+                "speed": "gemini-3-8-flash",
+                "local": "qwen2-5-7b",
+            },
+        ),
+        (
+            CLOUD + MY_LOCAL,
+            "code",
+            "complex",
+            {
+                "balanced": "claude-opus-5-5",
+                "economy": "claude-sonnet-5",
+                "speed": "claude-sonnet-5",
+                "quality": "claude-fable-5-1",
+            },
+        ),
+        (CLOUD, "writing", "moderate", {"balanced": "claude-sonnet-5", "economy": "gpt-6-luna"}),
+        (CLOUD, "reasoning", "complex", {"balanced": "claude-opus-5-5", "economy": "gpt-6-sol"}),
+        (CLOUD, "research", "moderate", {"balanced": "gpt-6-sol"}),
+        (CLOUD, "vision", "simple", {"balanced": "gemini-3-8-flash", "economy": "gpt-6-luna"}),
+        (CLOUD, "vision", "complex", {"balanced": "gemini-3-1-pro"}),
+        # Claude subscription only.
+        (
+            CLAUDE,
+            "chat",
+            "simple",
+            {
+                "balanced": "claude-haiku-4-5",
+                "economy": "claude-haiku-4-5",
+                "quality": "claude-sonnet-5",
+            },
+        ),
+        (CLAUDE, "code", "simple", {"balanced": "claude-haiku-4-5"}),
+        (
+            CLAUDE,
+            "code",
+            "moderate",
+            {"balanced": "claude-sonnet-5", "economy": "claude-haiku-4-5"},
+        ),
+        (
+            CLAUDE,
+            "code",
+            "complex",
+            {
+                "balanced": "claude-opus-5-5",
+                "economy": "claude-sonnet-5",
+                "quality": "claude-fable-5-1",
+            },
+        ),
+        (CLAUDE, "reasoning", "complex", {"balanced": "claude-opus-5-5"}),
+        # Local models only.
+        (MY_LOCAL, "chat", "simple", {"balanced": "qwen2-5-7b", "local": "qwen2-5-7b"}),
+    ],
+)
+def test_catalog_scenarios(available, task, level, expected):
+    picked, _ = choices(available, task, level)
+    assert {k: picked.get(k) for k in expected} == expected
+
+
+def test_catalog_never_suggests_superseded_or_blind_models():
+    # Opus 5 costs more than Opus 5.5 and is weaker: no strategy should ever pick it.
+    for task in TASKS:
+        for level in REQUIRED:
+            picked, _ = choices(CLOUD + MY_LOCAL, task, level)
+            assert "claude-opus-5" not in picked.values(), (task, level)
+    # Local text-only models never get an image task.
+    picked, notes = choices(MY_LOCAL, "vision", "simple")
+    assert picked == {} and notes == ["no_suitable_models"]
+
+
+def test_local_only_hard_task_says_nothing_fits():
+    picked, notes = choices(MY_LOCAL, "code", "complex")
+    assert notes == ["none_fits"] and picked["balanced"] == "qwen2-5-7b"

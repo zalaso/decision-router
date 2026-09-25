@@ -38,16 +38,34 @@ BALANCED_CEILING = 9
 # Below this confidence the router plans for the harder reading of the request.
 UNCERTAIN_BELOW = 0.6
 
+# Tuned on benchmarks/recommend-labeled.jsonl with a 3B model: without explicit cases it
+# reads "write a function" as writing, and any question needing a text answer as writing,
+# so writing is defined as text for someone else and chat as answering the user.
 TASK_DESCRIPTIONS: dict[Task, str] = {
-    "code": "building software such as apps, games or websites, or writing, reviewing or "
-    "debugging code, scripts or programs",
-    "reasoning": "math, logic puzzles, planning or complex analytical reasoning",
-    "writing": "writing or editing prose such as emails, articles, stories or translations "
-    "(not software)",
-    "research": "researching a topic, finding sources, comparing facts or summarizing documents",
-    "chat": "casual conversation, greetings like hello, or simple quick questions",
-    "vision": "analyzing, describing or reading images, photos, screenshots or charts",
+    "code": "programming: writing, fixing, testing or explaining code, functions, scripts, "
+    "errors and bugs, or building software such as apps, games or websites",
+    "reasoning": "math, calculations, logic and proofs, or planning and optimizing: "
+    "schedules, itineraries, strategies",
+    "writing": "composing a text for someone else to read or publish: an email, letter, "
+    "post, article, story or translation (not answering the user's own question)",
+    "research": "looking up facts or information: who, what or when questions, finding "
+    "sources, comparing products or prices, summarizing documents",
+    "chat": "answering the user directly: conversation, greetings like hello, thanks, jokes, "
+    "recommendations, how-to questions or simple explanations",
+    "vision": "working on an image: describing or reading a photo, screenshot, chart or "
+    "scanned document",
 }
+
+# Small models overrate complexity; concrete examples anchor each level.
+COMPLEXITY_LEVELS = [
+    "Simple: most everyday requests, done in one step: a quick answer or explanation, "
+    "a short email or message, a translation, a recommendation, describing or reading "
+    "one image, a small function or a quick fix.",
+    "Moderate: a multi-step task with several parts: a long article, a script or small "
+    "program that combines services, an API, a comparison, a trip plan, a proof.",
+    "Complex: a large or expert-level project: a full app or game, a book, a systematic "
+    "review, migrating a big codebase, a hard optimization problem.",
+]
 
 
 def recommend_questions() -> list[Question]:
@@ -60,12 +78,7 @@ def recommend_questions() -> list[Question]:
         Score(
             id="complexity",
             instructions="How demanding is the request for an AI model?",
-            levels=[
-                "Simple: a short, routine request that any basic assistant can handle.",
-                "Moderate: several steps or some expertise, but a well-defined task.",
-                "Complex: a large project such as a full app or game, or hard, long "
-                "or ambiguous work needing expert-level skills.",
-            ],
+            levels=COMPLEXITY_LEVELS,
         ),
         # Execution risk is left out: choosing a model runs nothing, and on a local LLM
         # every extra question costs seconds.
@@ -183,11 +196,19 @@ def rank(
     def option(strategy: Strategy, m: ModelProfile) -> ModelOption:
         return ModelOption(strategy=strategy, model=m.id, skill=skill(m), fits=skill(m) >= required)
 
-    best = min(usable, key=lambda m: (-skill(m), m.cost, -m.speed, m.id))
-    economy = min(fits, key=lambda m: (m.cost, -skill(m), -m.speed, m.id)) if fits else best
-    fastest = min(fits, key=lambda m: (-m.speed, m.cost, -skill(m), m.id)) if fits else best
+    best = min(usable, key=lambda m: (-skill(m), m.relative_cost, -m.speed, m.id))
+    economy = (
+        min(fits, key=lambda m: (m.relative_cost, -skill(m), -m.speed, m.id)) if fits else best
+    )
+    fastest = (
+        min(fits, key=lambda m: (-m.speed, m.relative_cost, -skill(m), m.id)) if fits else best
+    )
     margin = [m for m in fits if skill(m) >= min(required + BALANCED_MARGIN, BALANCED_CEILING)]
-    balanced = min(margin, key=lambda m: (m.cost, -m.speed, -skill(m), m.id)) if margin else economy
+    balanced = (
+        min(margin, key=lambda m: (m.relative_cost, -m.speed, -skill(m), m.id))
+        if margin
+        else economy
+    )
     choices: dict[Strategy, ModelProfile] = {
         "balanced": balanced,
         "economy": economy,

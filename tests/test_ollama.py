@@ -20,7 +20,7 @@ from decision_router.domain import (
 from decision_router.engine import DecisionEngine
 from decision_router.policy import DeterministicPolicy
 from decision_router.providers.fake import FakeProvider
-from decision_router.providers.ollama import OllamaProvider, _layout
+from decision_router.providers.ollama import OllamaProvider, _distribution, _layout
 from decision_router.recommend import ClassificationCache, RecommendRequest, rank, recommend
 
 REQUEST = DecisionRequest(
@@ -64,7 +64,7 @@ async def decide(transport):
 
 async def test_letters_and_yes_no_become_distributions():
     transport, seen = scripted(
-        reply({"A": 0.6, " B": 0.2, "Hello": 0.2}),
+        reply({"code": 0.6, " chat": 0.2, "Hello": 0.2}),
         reply({"No": 0.9, "yes": 0.05, "Maybe": 0.05}),
         reply({"C": 0.7, "B": 0.3}),
     )
@@ -183,3 +183,25 @@ async def test_runtime_wires_the_ollama_backend():
     assert result.decision is None and result.attempts[0].error == ErrorCode.UNAVAILABLE
     status = Status.from_settings(settings)
     assert status.local_model == "qwen2.5:3b-instruct" and not status.synthetic
+
+
+def test_answers_are_words_when_ids_and_levels_allow():
+    choice, labels = _layout(REQUEST, REQUEST.questions[0])
+    assert labels == ["code", "chat"] and choice.endswith("Answer with one word: code, chat.")
+    named = Score(id="cx", instructions="How hard?", levels=["Simple: a", "Moderate: b"])
+    message, labels = _layout(REQUEST, named)
+    assert labels == ["Simple", "Moderate"] and "- Simple: a" in message
+    # Ids with digits, or ids that prefix each other, fall back to letters.
+    for ids in (["a1", "b2"], ["code", "coder"]):
+        odd = Choice(
+            id="x",
+            instructions="?",
+            candidates=[Candidate(id=i, description=i) for i in ids],
+        )
+        assert _layout(REQUEST, odd)[1] == ["A", "B"]
+
+
+def test_ambiguous_word_prefixes_are_ignored():
+    labels = ["reasoning", "research", "chat"]
+    body = reply({"re": 0.5, "research": 0.3, "Ch": 0.2})
+    assert _distribution(body, labels) == pytest.approx([0.0, 0.6, 0.4])
